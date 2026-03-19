@@ -40,6 +40,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   videoData: VideoModel | null = null;
   videoId = '';
   videoSrc = '';
+  autoplayMuted = true;
 
   // Countdown (mirrors RLstartCountdown)
   countdownVisible = true;
@@ -68,6 +69,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   private countdownTimer: ReturnType<typeof setInterval> | null = null;
   private timerInterval: ReturnType<typeof setInterval> | null = null;
   private playbackInitialized = false;
+  private hasTriedFullscreen = false;
 
   // Swipe gesture tracking (mirrors SwipeGestureListener)
   private touchStartX = 0;
@@ -108,7 +110,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
       try {
         this.videoData = JSON.parse(state['videoData']) as VideoModel;
         this.videoId = state['videoId'] ?? '';
-        this.videoSrc = this.videoData?.videoLinkiPhonex ?? '';
+        this.videoSrc = this.resolveVideoSrc(this.videoData);
         this.setDifficulty(this.videoData?.difficulty ?? '');
         return !!this.videoSrc;
       } catch (e) {
@@ -123,7 +125,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
     this.firebase.getBodyClassVideo(this.defaultVideoKey).subscribe({
       next: (data) => {
         this.videoData = data;
-        this.videoSrc = data?.videoLinkiPhonex ?? '';
+        this.videoSrc = this.resolveVideoSrc(data);
         this.setDifficulty(data?.difficulty ?? '');
       },
       error: (err) => {
@@ -192,6 +194,9 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   // ── Controls overlay — mirrors relayVideoplay.setOnClickListener ─────────
   toggleControls(): void {
+    this.tryEnterFullscreenFromGesture();
+    // User gesture unlocks media on web autoplay-restricted browsers.
+    this.tryPlayFromUserGesture();
     this.controlsVisible = !this.controlsVisible;
   }
 
@@ -204,6 +209,8 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
       video.pause();
       this.isPaused = true;
     } else {
+      this.autoplayMuted = false;
+      video.muted = false;
       video.play().catch(() => {});
       this.isPaused = false;
     }
@@ -277,6 +284,56 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
     } else {
       this.difficultyClass = 'difficulty-intermediate';
       this.difficultyIconPath = 'assets/images/body-class-icons/ic_medium_body_class.svg';
+    }
+  }
+
+  private resolveVideoSrc(video: VideoModel | null): string {
+    if (!video) return '';
+    const raw =
+      video.videoLinkiPhonex ||
+      video.videoLinkiPhone ||
+      video.videoLinkiPad ||
+      video.streamingUrlIphonex ||
+      video.streamingUrlIpad ||
+      video.streamingUrl ||
+      '';
+
+    // Browsers block mixed content; normalize legacy http links.
+    return raw.startsWith('http://') ? raw.replace('http://', 'https://') : raw;
+  }
+
+  private tryPlayFromUserGesture(): void {
+    const video = this.videoElRef?.nativeElement;
+    if (!video) return;
+
+    this.autoplayMuted = false;
+    video.muted = false;
+    video.play().catch(() => {
+      // If unmuted playback is blocked, keep silent autoplay as fallback.
+      this.autoplayMuted = true;
+      video.muted = true;
+      video.play().catch(() => {});
+    });
+  }
+
+  private tryEnterFullscreenFromGesture(): void {
+    if (this.hasTriedFullscreen) return;
+    this.hasTriedFullscreen = true;
+
+    const video = this.videoElRef?.nativeElement as any;
+    if (!video) return;
+
+    if (document.fullscreenElement) return;
+
+    // Standard Fullscreen API first.
+    if (typeof video.requestFullscreen === 'function') {
+      video.requestFullscreen().catch(() => {});
+      return;
+    }
+
+    // iOS Safari fallback for <video>.
+    if (typeof video.webkitEnterFullscreen === 'function') {
+      try { video.webkitEnterFullscreen(); } catch { /* ignore */ }
     }
   }
 
