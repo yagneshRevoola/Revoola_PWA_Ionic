@@ -1,0 +1,167 @@
+<!-- Mirrors fragment_body_class_video.xml + layout_video_countdown + layout_play_stop + rl_common_start_class -->
+<!-- Full-screen landscape video player -->
+
+<ion-content [fullscreen]="true" class="video-content">
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       ROOT — relay_videoplay (RelativeLayout, match_parent)
+       ══════════════════════════════════════════════════════════════════ -->
+  <div class="video-root" (click)="toggleControls()">
+
+    <!-- ── VIDEO — mirrors VideoView match_parent ──────────────────────── -->
+    <video
+      #videoEl
+      class="video-player"
+      [src]="videoSrc"
+      autoplay
+      playsinline
+      webkit-playsinline="true"
+      preload="auto"
+      (canplay)="onVideoCanPlay()"
+      (loadeddata)="onVideoCanPlay()"
+    ></video>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         LEFT PANEL — leftsideview (touch target for swipe)
+         Contains: inlay_time (rl_common_start_class_with_sensor_body_class)
+         ══════════════════════════════════════════════════════════════════ -->
+    <div
+      class="left-panel"
+      (touchstart)="onTouchStart($event)"
+      (touchend)="onTouchEnd($event)"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- inlay_time — relay_sensor_progress, shown/hidden via swipe -->
+      <div
+        class="timer-panel"
+        [class.timer-panel--visible]="timerPanelVisible"
+        [class.timer-panel--hidden]="!timerPanelVisible"
+      >
+        <!-- img_icon (clock) -->
+        <svg class="timer-icon" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.7)" stroke-width="1.8"/>
+          <path d="M12 7v5l3 2" stroke="rgba(255,255,255,0.7)" stroke-width="1.8"
+                stroke-linecap="round"/>
+        </svg>
+
+        <!-- txt_name "TIME" label -->
+        <span class="timer-label">TIME</span>
+
+        <!-- txt_number — remaining time e.g. 24:30 -->
+        <span class="timer-value">{{ remainingTime }}</span>
+
+        <!-- progress_view2 (decorative line) -->
+        <div class="timer-underline"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         CONTROLS OVERLAY — inlay_playStop (layout_play_stop_video_button)
+         Centred, visible on tap
+         ══════════════════════════════════════════════════════════════════ -->
+    <div
+      class="controls-overlay"
+      [class.controls-overlay--visible]="controlsVisible"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Pause / Resume — btn_pause_resume + txt_pause_resume -->
+      <div class="ctrl-btn" (click)="togglePause()">
+        <div class="ctrl-icon">
+          <!-- Pause icon (shown when playing) -->
+          <svg *ngIf="!isPaused" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="48" fill="rgba(255,255,255,0.15)"
+                    stroke="rgba(255,255,255,0.6)" stroke-width="3"/>
+            <rect x="32" y="28" width="12" height="44" rx="4" fill="white"/>
+            <rect x="56" y="28" width="12" height="44" rx="4" fill="white"/>
+          </svg>
+          <!-- Play / Resume icon (shown when paused) -->
+          <svg *ngIf="isPaused" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="48" fill="rgba(255,255,255,0.15)"
+                    stroke="rgba(255,255,255,0.6)" stroke-width="3"/>
+            <path d="M38 28l36 22-36 22V28z" fill="white"/>
+          </svg>
+        </div>
+        <span class="ctrl-label">{{ isPaused ? 'RESUME' : 'PAUSE' }}</span>
+      </div>
+
+      <!-- Stop — btn_stop + txt_stop -->
+      <div class="ctrl-btn ctrl-btn--stop" (click)="stopVideo()">
+        <div class="ctrl-icon">
+          <svg viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="48" fill="rgba(255,255,255,0.15)"
+                    stroke="rgba(255,255,255,0.6)" stroke-width="3"/>
+            <rect x="30" y="30" width="40" height="40" rx="5" fill="white"/>
+          </svg>
+        </div>
+        <span class="ctrl-label">STOP</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         COUNTDOWN OVERLAY — inlay_countdown (layout_video_countdown_mind_body_class)
+         Shown for 5 seconds before class starts
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="countdown-overlay" [class.countdown-overlay--hidden]="!countdownVisible">
+
+      <div class="countdown-inner" *ngIf="videoData">
+
+        <!-- txt_countdown — large number, scale animates -->
+        <span class="countdown-number" [class.countdown-pulse]="countdownVisible">
+          {{ countdownValue }}
+        </span>
+
+        <!-- txt_title — rideTitle -->
+        <h2 class="countdown-title">{{ videoData.rideTitle }}</h2>
+
+        <!-- txt_with + txt_namewith -->
+        <p class="countdown-instructor">
+          <span class="with">With </span>
+          <span class="name">{{ videoData.instructor }}</span>
+        </p>
+
+        <!-- bodyVisibleLayout: duration + difficulty (body class mode) -->
+        <div class="countdown-stats">
+          <!-- Duration col -->
+          <div class="cdown-stat">
+            <svg class="cdown-stat-icon" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="rgba(150,150,150,0.8)" stroke-width="1.6"/>
+              <path d="M12 7v5l3 2" stroke="rgba(150,150,150,0.8)" stroke-width="1.6"
+                    stroke-linecap="round"/>
+            </svg>
+            <span class="cdown-stat-text">{{ videoData.duration }} mins</span>
+          </div>
+
+          <!-- Difficulty col -->
+          <div class="cdown-stat">
+            <span class="cdown-difficulty-icon">{{ difficultyIcon }}</span>
+            <span class="cdown-stat-text" [ngClass]="difficultyClass">
+              {{ videoData.difficulty }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /video-root -->
+
+</ion-content>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     UPGRADE DIALOG — mirrors showFullAppUpgradeDialog (MaterialAlertDialog)
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="dialog-backdrop" *ngIf="showUpgradeDialog" (click)="$event.stopPropagation()">
+  <div class="dialog-card">
+    <h3 class="dialog-title">✨ Unlock Your Full Revoola Journey</h3>
+    <p class="dialog-message">
+      We hope you're enjoying Mind 🧘, Body 💪, Run 🏃, Ride 🚴, Walk 🚶,
+      and Workout 🏋️ in Revoola Instant.<br/><br/>
+      To access the full experience — with all features, personalized programs,
+      and progress tracking — install the complete Revoola app from the Play Store today!
+    </p>
+    <div class="dialog-actions">
+      <button class="dialog-btn dialog-btn--secondary" (click)="dismissDialog()">Later</button>
+      <button class="dialog-btn dialog-btn--primary" (click)="openPlayStore()">Get Full App</button>
+    </div>
+  </div>
+</div>

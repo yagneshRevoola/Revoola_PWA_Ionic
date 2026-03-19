@@ -1,0 +1,95 @@
+// ─── Revoola Brand Color Variables ───────────────────────────────────────────
+:root {
+  // Primary brand green (AppMainColor / AppZone3Color)
+  --app-main-color: #00c896;
+  --app-zone3-color: #00c896;
+
+  // Semantic
+  --app-white: #ffffff;
+  --app-black: #1a1a1a;
+  --app-red: #e53935;
+  --app-orange: #ff8c00;
+  --app-text-gray: #888888;
+  --app-light-gray: #e0e0e0;
+  --app-dark-gray: #555555;
+  --app-bg: #ffffff;
+
+  // Typography — Nunito mirrors Omnes/Aptos proportions
+  --font-regular: 'Nunito', sans-serif;
+  --font-semibold: 'Nunito', sans-serif;
+
+  // Ionic overrides
+  --ion-background-color: #ffffff;
+  --ion-text-color: #1a1a1a;
+  --ion-color-primary: #00c896;
+  --ion-color-primary-rgb: 0, 200, 150;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #00af84;
+  --ion-color-primary-tint: #1acfa0;
+  --ion-font-family: 'Nunito', sans-serif;
+
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  --ion-safe-area-left: env(safe-area-inset-left);
+  --ion-safe-area-right: env(safe-area-inset-right);
+}
+
+// ─── Reset / Base ─────────────────────────────────────────────────────────────
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: var(--font-regular);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+// ─── Shared Button ────────────────────────────────────────────────────────────
+.btn-start-class {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  background: var(--app-main-color);
+  color: #ffffff;
+  font-family: var(--font-semibold);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border: none;
+  border-radius: 28px;
+  cursor: pointer;
+  text-transform: uppercase;
+
+  &:active {
+    opacity: 0.85;
+  }
+}
+
+// ─── Difficulty badge colours ─────────────────────────────────────────────────
+.difficulty-beginner {
+  color: var(--app-main-color) !important;
+}
+
+.difficulty-advanced {
+  color: var(--app-red) !important;
+}
+
+.difficulty-intermediate {
+  color: var(--app-orange) !important;
+}
+
+// ─── Ionic global adjustments ─────────────────────────────────────────────────
+ion-content {
+  --background: var(--app-white);
+}
+
+ion-header ion-toolbar {
+  --background: var(--app-white);
+  --border-color: transparent;
+}

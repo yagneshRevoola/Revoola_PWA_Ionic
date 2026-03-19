@@ -1,0 +1,66 @@
+// ── Splash Page ───────────────────────────────────────────────────────────────
+// Mirrors fragment_splash_body_class.xml
+// White bg, logo + tagline centred, bottom hint text.
+
+:host {
+  --background: #ffffff;
+}
+
+.splash-content {
+  --background: #ffffff;
+}
+
+.splash-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  padding: 0 10px;
+  background: #ffffff;
+  position: relative;
+}
+
+// ── Logo block — marginTop="100dp" equivalent ─────────────────────────────────
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 100px; // matches android:layout_marginTop="100dp"
+  padding: 0 5px;
+  width: 100%;
+}
+
+.logo-image {
+  width: min(92vw, 760px);
+  height: auto;
+  display: block;
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+// ── "The Best You" — textSize="32sp", fontFamily aptos_semibold ───────────────
+.headline {
+  font-family: var(--font-semibold);
+  font-weight: 700;
+  font-size: 32px;
+  color: var(--app-black);
+  text-align: center;
+  margin-top: 30px; // matches android:layout_marginTop="30dp"
+  letter-spacing: 0.5px;
+}
+
+// ── Bottom tagline — layout_alignParentBottom, marginBottom="50dp" ────────────
+.bottom-tagline {
+  position: absolute;
+  bottom: 50px;
+  left: 20px;
+  right: 20px;
+
+  p {
+    font-family: var(--font-regular);
+    font-size: 22px;
+    color: var(--app-black);
+    text-align: center;
+    margin: 0;
+  }
+}

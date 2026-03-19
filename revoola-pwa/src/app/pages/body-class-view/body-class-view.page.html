@@ -1,0 +1,157 @@
+<!-- Mirrors fragment_mind_body_class_view.xml -->
+<!-- Structure: ScrollView (banner + cards) + fixed START CLASS button -->
+
+<ion-content [fullscreen]="true" class="view-content">
+
+  <!-- ── Loading state ───────────────────────────────────────────────────── -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Loading class…</p>
+  </div>
+
+  <!-- ── Error state ────────────────────────────────────────────────────── -->
+  <div class="error-state" *ngIf="hasError && !isLoading">
+    <p>Unable to load class. Check your connection and try again.</p>
+    <button class="btn-start-class" style="margin-top:16px" (click)="goBack()">Go Back</button>
+  </div>
+
+  <!-- ── Main content ───────────────────────────────────────────────────── -->
+  <div class="scroll-area" *ngIf="videoData && !isLoading">
+
+    <!-- ── Banner + overlay text (mirrors img_main_banner + txt_title + txt_namewith) ── -->
+    <div class="banner-container">
+
+      <!-- Banner image -->
+      <img
+        class="banner-img"
+        [src]="videoData.imageLinkSquareV2 || videoData.imageLinkLarge"
+        [alt]="videoData.rideTitle"
+        loading="lazy"
+        onerror="this.style.background='#1a1a1a'; this.src=''"
+      />
+
+      <!-- Back chevron — mirrors ivBack -->
+      <button class="btn-back" (click)="goBack()" aria-label="Back">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M15 18l-6-6 6-6" stroke="#00C896" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <!-- Overlay: title + WITH instructor -->
+      <div class="banner-overlay-text">
+        <h1 class="banner-title">{{ videoData.rideTitle }}</h1>
+        <p class="banner-instructor">
+          <span class="with-label">WITH </span>
+          <span class="instructor-name">{{ videoData.instructor | uppercase }}</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Card 2: Stats (time + difficulty) — mirrors card_2 ─────────────── -->
+    <div class="card stats-card" *ngIf="videoData">
+
+      <!-- lay_timevideo: two columns — duration | difficulty -->
+      <div class="stats-row">
+
+        <!-- Duration col — img_minutes + txt_minutes -->
+        <div class="stat-col">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="#1a1a1a" stroke-width="1.8"/>
+            <path d="M12 7v5l3 3" stroke="#1a1a1a" stroke-width="1.8"
+                  stroke-linecap="round"/>
+          </svg>
+          <span class="stat-text">{{ videoData.duration }} MIN CLASS</span>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <!-- Difficulty col — img_video + txt_video -->
+        <div class="stat-col stat-col--right">
+          <span class="stat-icon-emoji">{{ getDifficultyIcon(videoData.difficulty) }}</span>
+          <span class="stat-text" [ngClass]="getDifficultyClass(videoData.difficulty)">
+            {{ videoData.difficulty | uppercase }}
+          </span>
+        </div>
+      </div>
+
+      <div class="card-divider"></div>
+
+      <!-- lay_worklog: warmup | workout | cooldown — mirrors inlay_warmup/workout/cooldown -->
+      <div class="worklog-row">
+
+        <!-- Warmup -->
+        <div class="worklog-item">
+          <svg class="worklog-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C8 2 5 6 5 10c0 5 7 12 7 12s7-7 7-12c0-4-3-8-7-8z"
+                  fill="#00C896" opacity=".25"/>
+            <path d="M12 6v6l3 2" stroke="#00C896" stroke-width="1.8"
+                  stroke-linecap="round"/>
+          </svg>
+          <div class="worklog-text">
+            <span class="worklog-time">{{ videoData.minwarmup }} MIN</span>
+            <span class="worklog-label">WARMUP</span>
+          </div>
+        </div>
+
+        <!-- Workout -->
+        <div class="worklog-item">
+          <svg class="worklog-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M6 12h12M6 12l3-3m-3 3l3 3M18 12l-3-3m3 3l-3 3"
+                  stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <div class="worklog-text">
+            <span class="worklog-time">{{ videoData.mininstruction }} MIN</span>
+            <span class="worklog-label">WORKOUT</span>
+          </div>
+        </div>
+
+        <!-- Cooldown -->
+        <div class="worklog-item">
+          <svg class="worklog-icon" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="8" stroke="#888" stroke-width="1.6"
+                    stroke-dasharray="3 2"/>
+            <path d="M12 8v4l2 2" stroke="#888" stroke-width="1.8"
+                  stroke-linecap="round"/>
+          </svg>
+          <div class="worklog-text">
+            <span class="worklog-time">{{ videoData.mincooldown }} MIN</span>
+            <span class="worklog-label">COOLDOWN</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Card 3: Description — mirrors card_3 ──────────────────────────── -->
+    <div class="card desc-card">
+      <h2 class="desc-title">{{ videoData.rideTitle | uppercase }}</h2>
+      <p class="desc-body">{{ videoData.rideDescription }}</p>
+    </div>
+
+    <!-- ── Card 4: Trainer — mirrors card_4 ──────────────────────────────── -->
+    <div class="card trainer-card">
+      <div class="trainer-info">
+        <span class="trainer-label">TRAINER</span>
+        <span class="trainer-name">{{ videoData.instructor | uppercase }}</span>
+        <span class="trainer-classes">{{ videoData.instructorClasses }} CLASSES</span>
+      </div>
+      <img
+        class="trainer-avatar"
+        [src]="videoData.imageLinkInstructor"
+        [alt]="videoData.instructor"
+        loading="lazy"
+        onerror="this.src=''"
+      />
+    </div>
+
+    <!-- Bottom spacer so content isn't hidden behind fixed button -->
+    <div class="bottom-spacer"></div>
+  </div>
+
+  <!-- ── Fixed START CLASS button — mirrors common_Button (layout_alignParentBottom) ── -->
+  <div class="start-btn-container" *ngIf="videoData && !isLoading">
+    <button class="btn-start-class" (click)="startClass()">START CLASS</button>
+  </div>
+
+</ion-content>

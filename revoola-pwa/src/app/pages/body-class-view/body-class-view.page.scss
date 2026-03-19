@@ -1,0 +1,350 @@
+// ── Body Class View Page ──────────────────────────────────────────────────────
+// Mirrors fragment_mind_body_class_view.xml
+// ScrollView (above button) + fixed bottom button
+
+:host {
+  --background: #ffffff;
+}
+
+.view-content {
+  --background: #ffffff;
+  --padding-bottom: 0;
+}
+
+// ── Loading / Error states ────────────────────────────────────────────────────
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  color: var(--app-text-gray);
+
+  p {
+    font-size: 16px;
+    font-family: var(--font-regular);
+  }
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  color: var(--app-text-gray);
+
+  p {
+    font-size: 16px;
+    font-family: var(--font-regular);
+  }
+}
+
+// ── Scroll area ───────────────────────────────────────────────────────────────
+.scroll-area {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 80px; // clear fixed button
+}
+
+// ── Banner — android img_main_banner h=400dp ──────────────────────────────────
+.banner-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: #1a1a1a;
+  overflow: hidden;
+}
+
+.banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+// ── Back button — ivBack (40×40dp, tint AppMainColor) ─────────────────────────
+.btn-back {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  padding: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+
+  svg path {
+    stroke: #00c896;
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+// ── Overlay text: title + WITH instructor ──────────────────────────────────────
+.banner-overlay-text {
+  position: absolute;
+  // Positioned below back button — mirrors layout_below ivBack + marginTop=100dp
+  bottom: 48px;
+  left: 16px;
+  right: 16px;
+}
+
+.banner-title {
+  font-family: var(--font-semibold);
+  font-weight: 700;
+  font-size: 32px;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-align: left;
+  margin: 0 0 15px;
+  line-height: 1.1;
+  // Text shadow for legibility over image
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+}
+
+.banner-instructor {
+  margin: 0;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+
+  .with-label {
+    font-family: var(--font-regular);
+    font-weight: 400;
+    margin-right: 3px;
+  }
+
+  .instructor-name {
+    font-family: var(--font-semibold);
+    font-weight: 700;
+  }
+}
+
+// ── Shared card base — mirrors CardView cardElevation=1dp cardCornerRadius=5dp ─
+.card {
+  margin: 10px 16px 0;
+  background: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+// ── Stats card — lay_timevideo (2 cols) + divider + lay_worklog ───────────────
+.stats-card {
+  // No extra padding; inner rows handle it
+}
+
+.stats-row {
+  display: flex;
+  align-items: stretch;
+  height: 50px; // matches android:layout_height="50dp"
+}
+
+.stat-col {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 8px;
+
+  &--right {
+    justify-content: center;
+  }
+}
+
+.stat-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.stat-icon-emoji {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.stat-text {
+  font-family: var(--font-semibold);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--app-text-gray);
+  white-space: nowrap;
+}
+
+.stat-divider {
+  width: 1px;
+  background: var(--app-light-gray);
+  align-self: stretch;
+}
+
+.card-divider {
+  height: 1px;
+  background: var(--app-light-gray);
+  margin: 0;
+}
+
+// ── Worklog row — lay_worklog, weightSum=3 ───────────────────────────────────
+.worklog-row {
+  display: flex;
+  padding: 10px;
+  gap: 0;
+}
+
+.worklog-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.worklog-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.worklog-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.worklog-time {
+  font-family: var(--font-semibold);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--app-black);
+  line-height: 1.2;
+}
+
+.worklog-label {
+  font-family: var(--font-regular);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--app-text-gray);
+  line-height: 1.2;
+}
+
+// ── Description card — card_3 ────────────────────────────────────────────────
+.desc-card {
+  padding: 15px;
+}
+
+.desc-title {
+  font-family: var(--font-semibold);
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
+  color: var(--app-black);
+  margin: 0 0 10px;
+  text-align: left;
+}
+
+.desc-body {
+  font-family: var(--font-regular);
+  font-size: 16px;
+  color: var(--app-black);
+  margin: 0;
+  line-height: 1.5;
+  text-align: left;
+}
+
+// ── Trainer card — card_4 ────────────────────────────────────────────────────
+.trainer-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.trainer-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.trainer-label {
+  font-family: var(--font-regular);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--app-text-gray);
+  line-height: 1.3;
+}
+
+.trainer-name {
+  font-family: var(--font-semibold);
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+  color: var(--app-black);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.trainer-classes {
+  font-family: var(--font-regular);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--app-text-gray);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+// Circular trainer avatar — mirrors ShapeableImageView + @style/Round50
+.trainer-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--app-light-gray);
+  margin-top: 5px;
+}
+
+// ── Bottom spacer ─────────────────────────────────────────────────────────────
+.bottom-spacer {
+  height: 10px;
+  background: #ffffff;
+}
+
+// ── Fixed START CLASS button ──────────────────────────────────────────────────
+// Mirrors: android:id="@+id/common_Button" + layout_alignParentBottom
+.start-btn-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+  background: #ffffff;
+  z-index: 100;
+}
+
+// Difficulty colour overrides (same colours as Android)
+.difficulty-beginner {
+  color: #00c896 !important;
+}
+
+.difficulty-advanced {
+  color: #e53935 !important;
+}
+
+.difficulty-intermediate {
+  color: #ff8c00 !important;
+}
