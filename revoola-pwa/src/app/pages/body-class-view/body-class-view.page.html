@@ -132,6 +132,25 @@
 
   <!-- ── Fixed START CLASS button — mirrors common_Button (layout_alignParentBottom) ── -->
   <div class="start-btn-container" *ngIf="videoData && !isLoading">
+    <div *ngIf="installStatusMessage" class="install-status" [ngClass]="'install-status--' + installStatusType">
+      <span>{{ installStatusMessage }}</span>
+      <button class="install-status-close" (click)="clearInstallStatus()" aria-label="Close status">x</button>
+    </div>
+
+    <button
+      *ngIf="canInstallPwa"
+      class="btn-install-pwa"
+      [disabled]="isPwaInstalled || isInstallInProgress"
+      (click)="installPwa()"
+      aria-label="Install app to home screen"
+    >
+      <ion-spinner *ngIf="isInstallInProgress" class="install-spinner" name="crescent"></ion-spinner>
+      {{
+        isInstallInProgress
+          ? 'INSTALLING...'
+          : (isPwaInstalled ? '✓ INSTALLED' : 'INSTALL TO HOME SCREEN')
+      }}
+    </button>
     <button class="btn-start-class" (click)="startClass()">START CLASS</button>
   </div>
 
