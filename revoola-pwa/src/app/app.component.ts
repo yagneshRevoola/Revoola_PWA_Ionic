@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { PwaInstallService } from './services/pwa-install.service';
 
 @Component({
   selector: 'app-root',
@@ -11,4 +12,8 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
     </ion-app>
   `,
 })
-export class AppComponent {}
+export class AppComponent {
+  constructor(private pwaInstallService: PwaInstallService) {
+    this.pwaInstallService.init();
+  }
+}

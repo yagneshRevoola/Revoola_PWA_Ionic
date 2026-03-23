@@ -329,9 +329,82 @@
   bottom: 0;
   left: 0;
   right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
   background: #ffffff;
   z-index: 100;
+}
+
+.install-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  border: 1px solid transparent;
+}
+
+.install-status--success {
+  background: #eafaf4;
+  border-color: #8ad7b8;
+  color: #117a53;
+}
+
+.install-status--warning {
+  background: #fff8e8;
+  border-color: #f2cd7f;
+  color: #8a6210;
+}
+
+.install-status--error {
+  background: #fdecec;
+  border-color: #ee9e9e;
+  color: #9a2b2b;
+}
+
+.install-status--info {
+  background: #eef4fd;
+  border-color: #9bb7df;
+  color: #2d4c77;
+}
+
+.install-status-close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-install-pwa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 46px;
+  border: 1px solid #9bb7df;
+  border-radius: 10px;
+  background: #d6e3f8;
+  color: #5a667a;
+  font-family: var(--font-semibold);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.btn-install-pwa:disabled {
+  opacity: 0.75;
+}
+
+.install-spinner {
+  width: 16px;
+  height: 16px;
 }
 
 // Difficulty colour overrides (same colours as Android)
