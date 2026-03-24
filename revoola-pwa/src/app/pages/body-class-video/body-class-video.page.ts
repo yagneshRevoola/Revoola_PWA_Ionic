@@ -76,7 +76,6 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   private resumeListenerHandle: { remove: () => Promise<void> } | null = null;
   private isOrientationLockActive = false;
   private playbackInitialized = false;
-  private hasTriedFullscreen = false;
 
   // Swipe gesture tracking (mirrors SwipeGestureListener)
   private touchStartX = 0;
@@ -203,7 +202,6 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
     // Some devices apply orientation reliably only when media starts.
     void this.forceLandscapeLock();
-    this.tryEnterFullscreenAuto();
 
     video.play().catch(() => {});
     this.controlsVisible = false;
@@ -236,7 +234,6 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   // ── Controls overlay — mirrors relayVideoplay.setOnClickListener ─────────
   toggleControls(): void {
-    this.tryEnterFullscreenFromGesture();
     // User gesture unlocks media on web autoplay-restricted browsers.
     this.tryPlayFromUserGesture();
     this.controlsVisible = !this.controlsVisible;
@@ -356,46 +353,6 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
       video.muted = true;
       video.play().catch(() => {});
     });
-  }
-
-  private tryEnterFullscreenFromGesture(): void {
-    if (this.hasTriedFullscreen) return;
-    this.hasTriedFullscreen = true;
-
-    const video = this.videoElRef?.nativeElement as any;
-    if (!video) return;
-
-    if (document.fullscreenElement) return;
-
-    // Standard Fullscreen API first.
-    if (typeof video.requestFullscreen === 'function') {
-      video.requestFullscreen().catch(() => {});
-      return;
-    }
-
-    // iOS Safari fallback for <video>.
-    if (typeof video.webkitEnterFullscreen === 'function') {
-      try { video.webkitEnterFullscreen(); } catch { /* ignore */ }
-    }
-  }
-
-  private tryEnterFullscreenAuto(): void {
-    if (this.hasTriedFullscreen) return;
-    this.hasTriedFullscreen = true;
-
-    const video = this.videoElRef?.nativeElement as any;
-    if (!video) return;
-
-    // Native app can often enter fullscreen without explicit tap.
-    if (Capacitor.isNativePlatform()) {
-      if (typeof video.requestFullscreen === 'function') {
-        video.requestFullscreen().catch(() => {});
-        return;
-      }
-      if (typeof video.webkitEnterFullscreen === 'function') {
-        try { video.webkitEnterFullscreen(); } catch { /* ignore */ }
-      }
-    }
   }
 
   // ── Orientation helpers ───────────────────────────────────────────────────
