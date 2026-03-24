@@ -12,6 +12,13 @@ export const routes: Routes = [
       import('./pages/splash/splash.page').then((m) => m.SplashPage),
   },
   {
+    path: 'app-install-choice',
+    loadComponent: () =>
+      import('./pages/app-install-choice/app-install-choice.page').then(
+        (m) => m.AppInstallChoicePage
+      ),
+  },
+  {
     path: 'body-class-view',
     loadComponent: () =>
       import('./pages/body-class-view/body-class-view.page').then(
