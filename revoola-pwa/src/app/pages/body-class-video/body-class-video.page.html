@@ -6,7 +6,11 @@
   <!-- ══════════════════════════════════════════════════════════════════
        ROOT — relay_videoplay (RelativeLayout, match_parent)
        ══════════════════════════════════════════════════════════════════ -->
-  <div class="video-root" (click)="toggleControls()">
+  <div
+    class="video-root"
+    [class.video-root--forced-landscape]="forceLandscapeVisualFallback"
+    (click)="onSurfaceTap()"
+  >
 
     <!-- ── VIDEO — mirrors VideoView match_parent ──────────────────────── -->
     <video
@@ -17,6 +21,8 @@
       [muted]="autoplayMuted"
       playsinline
       webkit-playsinline="true"
+      disablepictureinpicture
+      controlsList="nofullscreen noremoteplayback nodownload"
       preload="auto"
       (canplay)="onVideoCanPlay()"
       (loadeddata)="onVideoCanPlay()"
@@ -59,10 +65,10 @@
     <div
       class="controls-overlay"
       [class.controls-overlay--visible]="controlsVisible"
-      (click)="$event.stopPropagation()"
+      (click)="hideControls($event)"
     >
       <!-- Pause / Resume — btn_pause_resume + txt_pause_resume -->
-      <div class="ctrl-btn" (click)="togglePause()">
+      <div class="ctrl-btn" (click)="togglePause($event)">
         <div class="ctrl-icon">
           <img *ngIf="!isPaused" src="assets/images/body-class-icons/ic_pause_button_body_class.svg" alt="" />
           <img *ngIf="isPaused" src="assets/images/body-class-icons/ic_playbutton2_body_class.svg" alt="" />
@@ -71,7 +77,7 @@
       </div>
 
       <!-- Stop — btn_stop + txt_stop -->
-      <div class="ctrl-btn ctrl-btn--stop" (click)="stopVideo()">
+      <div class="ctrl-btn ctrl-btn--stop" (click)="stopVideo($event)">
         <div class="ctrl-icon">
           <img src="assets/images/body-class-icons/ic_stop_button.svg" alt="" />
         </div>

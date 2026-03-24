@@ -2,10 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
+import { PwaInstallService } from '../../services/pwa-install.service';
 
 /**
  * Mirrors SplashBodyClassFragment.
- * Shows logo + "The Best You" for 2 seconds then navigates to body-class-view.
+ * Shows logo + "The Best You" for 2 seconds then navigates to install-choice.
  */
 @Component({
   selector: 'app-splash',
@@ -18,7 +19,10 @@ export class SplashPage implements OnInit, OnDestroy {
   private timer: ReturnType<typeof setTimeout> | null = null;
   isDesktop = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private pwaInstallService: PwaInstallService
+  ) {}
 
   ngOnInit(): void {
     this.isDesktop = this.checkDesktopView();
@@ -30,10 +34,14 @@ export class SplashPage implements OnInit, OnDestroy {
 
     // Force portrait — same as RLToolsBodyClass.rl_screenSet(false, activity)
     this.lockPortrait();
+    this.pwaInstallService.init();
 
     // Navigate after 2 seconds — same as Handler(Looper.getMainLooper()).postDelayed({ navigate }, 2000)
     this.timer = setTimeout(() => {
-      this.router.navigate(['/body-class-view'], { replaceUrl: true });
+      const nextRoute = this.pwaInstallService.isPwaInstalled()
+        ? '/body-class-view'
+        : '/app-install-choice';
+      this.router.navigate([nextRoute], { replaceUrl: true });
     }, 2000);
   }
 

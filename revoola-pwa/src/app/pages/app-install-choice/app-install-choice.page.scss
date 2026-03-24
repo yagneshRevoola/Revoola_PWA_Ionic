@@ -1,0 +1,99 @@
+:host {
+  --background: #ffffff;
+}
+
+.install-choice-content {
+  --background: #ffffff;
+}
+
+.install-choice-wrapper {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+}
+
+.logo-image {
+  width: min(82vw, 360px);
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.btn-install-app-clip,
+.btn-install-full-version {
+  width: min(92vw, 360px);
+  min-height: 52px;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-semibold);
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  padding: 12px 16px;
+}
+
+.btn-install-app-clip {
+  background: #0f5132;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-install-app-clip:disabled {
+  opacity: 0.75;
+}
+
+.btn-install-full-version {
+  background: #111111;
+  color: #ffffff;
+}
+
+.install-status {
+  width: min(92vw, 360px);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.35;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.install-status--success {
+  background: #e8f8ef;
+  color: #0f5132;
+}
+
+.install-status--warning {
+  background: #fff6df;
+  color: #7a5a00;
+}
+
+.install-status--error {
+  background: #fdecef;
+  color: #9f1239;
+}
+
+.install-status--info {
+  background: #edf5ff;
+  color: #0f3b73;
+}
+
+.install-status-close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.install-spinner {
+  width: 18px;
+  height: 18px;
+}

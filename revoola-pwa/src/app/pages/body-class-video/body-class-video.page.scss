@@ -29,6 +29,17 @@
   user-select: none;
 }
 
+// Hard fallback: if device refuses native orientation lock, rotate this page only.
+.video-root--forced-landscape {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100dvh;
+  height: 100vw;
+  transform-origin: top left;
+  transform: rotate(90deg) translateY(-100%);
+}
+
 // ── HTML5 Video — mirrors VideoView match_parent ──────────────────────────────
 .video-player {
   position: absolute;
