@@ -242,14 +242,24 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   }
 
   // ── Controls overlay — mirrors relayVideoplay.setOnClickListener ─────────
-  toggleControls(): void {
+  onSurfaceTap(): void {
+    if (this.controlsVisible) {
+      this.controlsVisible = false;
+      return;
+    }
     // User gesture unlocks media on web autoplay-restricted browsers.
     this.tryPlayFromUserGesture();
-    this.controlsVisible = !this.controlsVisible;
+    this.controlsVisible = true;
+  }
+
+  hideControls(event?: Event): void {
+    event?.stopPropagation();
+    this.controlsVisible = false;
   }
 
   // ── Pause / Resume — mirrors btnPauseResume.setOnClickListener ────────────
-  togglePause(): void {
+  togglePause(event?: Event): void {
+    event?.stopPropagation();
     const video = this.videoElRef?.nativeElement;
     if (!video) return;
 
@@ -265,7 +275,8 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   }
 
   // ── Stop — mirrors stopButtonProcess ─────────────────────────────────────
-  stopVideo(): void {
+  stopVideo(event?: Event): void {
+    event?.stopPropagation();
     const video = this.videoElRef?.nativeElement;
     if (video) {
       video.pause();
