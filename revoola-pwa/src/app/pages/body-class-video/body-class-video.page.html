@@ -6,7 +6,11 @@
   <!-- ══════════════════════════════════════════════════════════════════
        ROOT — relay_videoplay (RelativeLayout, match_parent)
        ══════════════════════════════════════════════════════════════════ -->
-  <div class="video-root" (click)="toggleControls()">
+  <div
+    class="video-root"
+    [class.video-root--forced-landscape]="forceLandscapeVisualFallback"
+    (click)="toggleControls()"
+  >
 
     <!-- ── VIDEO — mirrors VideoView match_parent ──────────────────────── -->
     <video

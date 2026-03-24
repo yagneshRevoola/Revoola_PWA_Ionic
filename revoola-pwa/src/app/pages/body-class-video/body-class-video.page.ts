@@ -10,6 +10,9 @@ import {
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IonContent } from '@ionic/angular/standalone';
+import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
+import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { VideoModel } from '../../models/video.model';
 import { FirebaseService } from '../../services/firebase.service';
 
@@ -60,6 +63,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   // Upgrade dialog
   showUpgradeDialog = false;
+  forceLandscapeVisualFallback = false;
 
   // Difficulty
   difficultyClass = '';
@@ -68,6 +72,9 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   // ── Private ──────────────────────────────────────────────────────────────
   private countdownTimer: ReturnType<typeof setInterval> | null = null;
   private timerInterval: ReturnType<typeof setInterval> | null = null;
+  private orientationEnforcer: ReturnType<typeof setInterval> | null = null;
+  private resumeListenerHandle: { remove: () => Promise<void> } | null = null;
+  private isOrientationLockActive = false;
   private playbackInitialized = false;
   private hasTriedFullscreen = false;
 
@@ -89,7 +96,6 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.lockLandscape();
     const hasState = this.readNavState();
     if (!hasState) {
       this.loadFallbackVideo();
@@ -98,7 +104,36 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearTimers();
-    this.unlockOrientation();
+    this.stopLandscapeEnforcer();
+  }
+
+  async ionViewWillEnter(): Promise<void> {
+    this.isOrientationLockActive = true;
+    this.updateVisualLandscapeFallback();
+    this.startLandscapeEnforcer();
+    await this.forceLandscapeLock();
+  }
+
+  async ionViewDidEnter(): Promise<void> {
+    this.updateVisualLandscapeFallback();
+    await this.forceLandscapeLock();
+  }
+
+  async ionViewWillLeave(): Promise<void> {
+    this.isOrientationLockActive = false;
+    this.forceLandscapeVisualFallback = false;
+    this.stopLandscapeEnforcer();
+    await this.unlockOrientation();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateVisualLandscapeFallback();
+  }
+
+  @HostListener('window:orientationchange')
+  onOrientationChange(): void {
+    this.updateVisualLandscapeFallback();
   }
 
   // ── Navigation state ─────────────────────────────────────────────────────
@@ -137,6 +172,8 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   // ── After view — start video + countdown ─────────────────────────────────
   ngAfterViewInit(): void {
     this.startCountdown();
+    // Ensure orientation lock is re-applied once DOM/video area is mounted.
+    void this.forceLandscapeLock();
   }
 
   // ── Countdown — mirrors RLstartCountdown (6000ms, 1s intervals) ──────────
@@ -163,6 +200,11 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
     const video = this.videoElRef?.nativeElement;
     if (!video || this.playbackInitialized) return;
     this.playbackInitialized = true;
+
+    // Some devices apply orientation reliably only when media starts.
+    void this.forceLandscapeLock();
+    this.tryEnterFullscreenAuto();
+
     video.play().catch(() => {});
     this.controlsVisible = false;
     this.updateRemainingTime();
@@ -337,17 +379,92 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
     }
   }
 
-  // ── Orientation helpers ───────────────────────────────────────────────────
-  private lockLandscape(): void {
-    try {
-      (window.screen as any).orientation?.lock('landscape').catch(() => {});
-    } catch { /* desktop — ignore */ }
+  private tryEnterFullscreenAuto(): void {
+    if (this.hasTriedFullscreen) return;
+    this.hasTriedFullscreen = true;
+
+    const video = this.videoElRef?.nativeElement as any;
+    if (!video) return;
+
+    // Native app can often enter fullscreen without explicit tap.
+    if (Capacitor.isNativePlatform()) {
+      if (typeof video.requestFullscreen === 'function') {
+        video.requestFullscreen().catch(() => {});
+        return;
+      }
+      if (typeof video.webkitEnterFullscreen === 'function') {
+        try { video.webkitEnterFullscreen(); } catch { /* ignore */ }
+      }
+    }
   }
 
-  private unlockOrientation(): void {
+  // ── Orientation helpers ───────────────────────────────────────────────────
+  private async lockLandscape(): Promise<void> {
     try {
-      (window.screen as any).orientation?.unlock();
-    } catch { /* ignore */ }
+      if (Capacitor.isNativePlatform()) {
+        await ScreenOrientation.lock({ orientation: 'landscape-primary' });
+        return;
+      }
+      await (window.screen as any).orientation?.lock?.('landscape');
+    } catch {
+      // Ignore unsupported devices/platforms.
+    }
+  }
+
+  private async unlockOrientation(): Promise<void> {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        await ScreenOrientation.unlock();
+        return;
+      }
+      (window.screen as any).orientation?.unlock?.();
+    } catch {
+      // Ignore unsupported devices/platforms.
+    }
+  }
+
+  private startLandscapeEnforcer(): void {
+    if (this.orientationEnforcer) return;
+    this.orientationEnforcer = setInterval(() => {
+      if (!this.isOrientationLockActive) return;
+      void this.lockLandscape();
+    }, 1200);
+
+    // Re-apply lock when app returns to foreground.
+    if (!this.resumeListenerHandle) {
+      App.addListener('resume', () => {
+        if (this.isOrientationLockActive) {
+          void this.forceLandscapeLock();
+        }
+      }).then((handle) => {
+        this.resumeListenerHandle = handle;
+      });
+    }
+  }
+
+  private stopLandscapeEnforcer(): void {
+    if (this.orientationEnforcer) {
+      clearInterval(this.orientationEnforcer);
+      this.orientationEnforcer = null;
+    }
+    if (this.resumeListenerHandle) {
+      void this.resumeListenerHandle.remove();
+      this.resumeListenerHandle = null;
+    }
+  }
+
+  private async forceLandscapeLock(): Promise<void> {
+    // Some devices ignore first lock during transitions; retry quickly.
+    await this.lockLandscape();
+    setTimeout(() => { if (this.isOrientationLockActive) void this.lockLandscape(); }, 250);
+    setTimeout(() => { if (this.isOrientationLockActive) void this.lockLandscape(); }, 800);
+    setTimeout(() => { if (this.isOrientationLockActive) void this.lockLandscape(); }, 1500);
+    this.updateVisualLandscapeFallback();
+  }
+
+  private updateVisualLandscapeFallback(): void {
+    const isPortraitViewport = window.innerHeight > window.innerWidth;
+    this.forceLandscapeVisualFallback = this.isOrientationLockActive && isPortraitViewport;
   }
 
   // ── Cleanup ───────────────────────────────────────────────────────────────
