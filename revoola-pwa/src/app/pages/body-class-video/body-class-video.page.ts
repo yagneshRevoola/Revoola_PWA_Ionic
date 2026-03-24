@@ -75,6 +75,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   private orientationEnforcer: ReturnType<typeof setInterval> | null = null;
   private resumeListenerHandle: { remove: () => Promise<void> } | null = null;
   private isOrientationLockActive = false;
+  private isVideoReadyToStart = false;
   private playbackInitialized = false;
 
   // Swipe gesture tracking (mirrors SwipeGestureListener)
@@ -187,6 +188,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
           clearInterval(this.countdownTimer!);
           this.countdownTimer = null;
           this.countdownVisible = false;
+          this.startPlaybackIfReady();
         }
       });
     }, 1000);
@@ -196,8 +198,15 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   /** Mirrors: setOnPreparedListener { mediaPlayer.start(); startTimer() } */
   onVideoCanPlay(): void {
+    if (this.playbackInitialized) return;
+    this.isVideoReadyToStart = true;
+    this.startPlaybackIfReady();
+  }
+
+  private startPlaybackIfReady(): void {
     const video = this.videoElRef?.nativeElement;
     if (!video || this.playbackInitialized) return;
+    if (this.countdownVisible || !this.isVideoReadyToStart) return;
     this.playbackInitialized = true;
 
     // Some devices apply orientation reliably only when media starts.
