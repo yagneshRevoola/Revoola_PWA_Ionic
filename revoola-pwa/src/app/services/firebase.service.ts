@@ -17,6 +17,7 @@ export class FirebaseService {
 
   // Hardcoded video key — same as Android: BodyClassViewFragment.videoKey
   readonly DEFAULT_VIDEO_KEY = '20190617-1334-technical-dance-jess-advanced-30';
+  readonly STATIC_VIDEO_URL = 'https://takeoff.jetstre.am/?account=revoola&file=20190617-1334-technical-dance-jess-advanced-30-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
 
   constructor(private http: HttpClient) {}
 
