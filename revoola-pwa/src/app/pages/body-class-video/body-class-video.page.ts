@@ -14,7 +14,6 @@ import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { VideoModel } from '../../models/video.model';
-import { FirebaseService } from '../../services/firebase.service';
 
 /**
  * Mirrors BodyClassVideoFragment exactly.
@@ -85,22 +84,17 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   // Play Store package (mirrors FULL_APP_PACKAGE)
   private readonly FULL_APP_PACKAGE = 'com.revoola';
-  private readonly defaultVideoKey: string;
-  private readonly staticVideoUrl = this.firebase.STATIC_VIDEO_URL;
-    //'https://takeoff.jetstre.am/?account=revoola&file=20190617-1334-technical-dance-jess-advanced-30-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
 
   constructor(
     private router: Router,
-    private zone: NgZone,
-    private firebase: FirebaseService
-  ) {
-    this.defaultVideoKey = this.firebase.DEFAULT_VIDEO_KEY;
-  }
+    private zone: NgZone
+  ) {}
 
   ngOnInit(): void {
     const hasState = this.readNavState();
     if (!hasState) {
-      this.loadFallbackVideo();
+      // This page now requires state from body-class-view.
+      this.router.navigate(['/body-class-view'], { replaceUrl: true });
     }
   }
 
@@ -142,33 +136,26 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   private readNavState(): boolean {
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state ?? history.state;
+    const passedVideoUrl = this.normalizeUrl(state?.['videoUrl'] ?? state?.['videoId'] ?? '');
 
     if (state?.['videoData']) {
       try {
         this.videoData = JSON.parse(state['videoData']) as VideoModel;
         this.videoId = state['videoId'] ?? '';
-        this.videoSrc = this.resolveVideoSrc(this.videoData);
+        this.videoSrc = passedVideoUrl || this.resolveVideoSrc(this.videoData);
         this.setDifficulty(this.videoData?.difficulty ?? '');
         return !!this.videoSrc;
       } catch (e) {
         console.error('[BodyClassVideo] State parse error:', e);
       }
     }
-    return false;
-  }
 
-  private loadFallbackVideo(): void {
-    this.videoId = this.defaultVideoKey;
-    this.firebase.getBodyClassVideo(this.defaultVideoKey).subscribe({
-      next: (data) => {
-        this.videoData = data;
-        this.videoSrc = this.resolveVideoSrc(data);
-        this.setDifficulty(data?.difficulty ?? '');
-      },
-      error: (err) => {
-        console.error('[BodyClassVideo] Fallback load error:', err);
-      },
-    });
+    if (passedVideoUrl) {
+      this.videoSrc = passedVideoUrl;
+      return true;
+    }
+
+    return false;
   }
 
   // ── After view — start video + countdown ─────────────────────────────────
@@ -349,8 +336,6 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   }
 
   private resolveVideoSrc(video: VideoModel | null): string {
-    // Force a stable known-working stream for this screen.
-    if (this.staticVideoUrl) return this.staticVideoUrl;
     if (!video) return '';
     const raw =
       video.videoLinkiPhonex ||
@@ -361,8 +346,15 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
       video.streamingUrl ||
       '';
 
+    return this.normalizeUrl(raw);
+  }
+
+  private normalizeUrl(url: string): string {
+    const value = (url || '').trim();
+    if (!value) return '';
+
     // Browsers block mixed content; normalize legacy http links.
-    return raw.startsWith('http://') ? raw.replace('http://', 'https://') : raw;
+    return value.startsWith('http://') ? value.replace('http://', 'https://') : value;
   }
 
   private tryPlayFromUserGesture(): void {

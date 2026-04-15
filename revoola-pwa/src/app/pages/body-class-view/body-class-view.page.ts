@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ToastController } from '@ionic/angular';
@@ -34,21 +34,24 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
   isInstallInProgress = false;
   installStatusMessage = '';
   installStatusType: 'success' | 'warning' | 'error' | 'info' = 'info';
+  isBrowserLaunch = true;
 
   private sub?: Subscription;
   private pwaStateSub?: Subscription;
+  private readonly storageVideoKey = 'revoola:lastVideoKey';
 
-  // Mirrors: private val videoKey = "20190617-1334-technical-dance-jess-advanced-30"
-  private readonly videoKey = this.firebase.DEFAULT_VIDEO_KEY;
+  // Mirrors Android default key; can be overridden by URL param/query.
 
   constructor(
     private firebase: FirebaseService,
+    private route: ActivatedRoute,
     private router: Router,
     private pwaInstallService: PwaInstallService,
     private toastController: ToastController
   ) {}
 
   ngOnInit(): void {
+    this.isBrowserLaunch = this.detectBrowserLaunch();
     this.lockPortrait();
     this.setupPwaInstallState();
     this.loadVideoData();
@@ -63,9 +66,16 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
   private loadVideoData(): void {
     this.isLoading = true;
     this.hasError = false;
+    const requestedVideoKey = this.getRequestedVideoKey();
+    if (!requestedVideoKey) {
+      this.hasError = true;
+      this.isLoading = false;
+      console.warn('[BodyClassView] Missing video key in URL/query/storage.');
+      return;
+    }
 
     this.sub = this.firebase
-      .getBodyClassVideo(this.videoKey)
+      .getBodyClassVideo(requestedVideoKey)
       .subscribe({
         next: (data) => {
           this.videoData = data;
@@ -79,12 +89,62 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
       });
   }
 
+  private getRequestedVideoKey(): string {
+    const pathVideoKey = (this.route.snapshot.paramMap.get('videoId') ?? '').trim();
+    const queryVideoKey = (this.route.snapshot.queryParamMap.get('videoId') ?? '').trim();
+    const pathnameKey = this.getVideoKeyFromPathname();
+    const resolvedKey =
+      queryVideoKey ||
+      pathVideoKey ||
+      pathnameKey ||
+      this.getStoredVideoKey();
+
+    this.storeVideoKey(resolvedKey);
+    return resolvedKey;
+  }
+
+  private getVideoKeyFromPathname(): string {
+    const rawPath = (window.location.pathname || '').replace(/^\/+|\/+$/g, '');
+    if (!rawPath) return '';
+
+    const firstSegment = decodeURIComponent(rawPath.split('/')[0] || '').trim();
+    if (!firstSegment) return '';
+
+    // Ignore known app routes so only deep-link IDs are treated as video keys.
+    const reservedRoutes = new Set([
+      'splash',
+      'app-install-choice',
+      'body-class-view',
+      'body-class-video',
+    ]);
+    return reservedRoutes.has(firstSegment) ? '' : firstSegment;
+  }
+
+  private getStoredVideoKey(): string {
+    try {
+      return (localStorage.getItem(this.storageVideoKey) ?? '').trim();
+    } catch {
+      return '';
+    }
+  }
+
+  private storeVideoKey(videoKey: string): void {
+    const value = (videoKey || '').trim();
+    if (!value) return;
+    try {
+      localStorage.setItem(this.storageVideoKey, value);
+    } catch {
+      // Ignore storage failures (private mode / quota).
+    }
+  }
+
   // ── Navigation — mirrors findNavController().navigate(bodyView_to_bodyVideo) ─
   startClass(): void {
+    const defaultVideoUrl = this.videoData?.streamingUrl || '';
     if (!this.videoData) {
       // Keep navigation responsive even if data hydration is delayed.
       this.router.navigate(['/body-class-video'], {
-        state: { videoId: this.videoKey },
+        state: { videoUrl: defaultVideoUrl },
         replaceUrl: true,
       });
       return;
@@ -92,7 +152,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     this.router.navigate(['/body-class-video'], {
       state: {
         videoData: JSON.stringify(this.videoData),
-        videoId: this.videoKey,
+        videoUrl: defaultVideoUrl,
       },
       replaceUrl: true,
     });
@@ -240,5 +300,18 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     try {
       (window.screen as any).orientation?.lock('portrait').catch(() => {});
     } catch { /* desktop */ }
+  }
+
+  private detectBrowserLaunch(): boolean {
+    try {
+      const nav = window.navigator as Navigator & { standalone?: boolean };
+      const inStandaloneMode =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.matchMedia('(display-mode: fullscreen)').matches ||
+        !!nav.standalone;
+      return !inStandaloneMode;
+    } catch {
+      return true;
+    }
   }
 }
