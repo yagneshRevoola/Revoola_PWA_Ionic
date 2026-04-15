@@ -6,6 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "build:pwa": "ng build --configuration production",
+    "deploy:hosting": "ng build --configuration production && firebase deploy --only hosting",
+    "deploy:hosting:preview": "ng build --configuration production && firebase hosting:channel:deploy",
     "test": "ng test",
     "lint": "ng lint"
   },

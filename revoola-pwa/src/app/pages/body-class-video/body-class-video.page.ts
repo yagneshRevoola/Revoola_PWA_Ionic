@@ -86,8 +86,8 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   // Play Store package (mirrors FULL_APP_PACKAGE)
   private readonly FULL_APP_PACKAGE = 'com.revoola';
   private readonly defaultVideoKey: string;
-  private readonly staticVideoUrl =
-    'https://takeoff.jetstre.am/?account=revoola&file=20190617-1334-technical-dance-jess-advanced-30-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
+  private readonly staticVideoUrl = this.firebase.STATIC_VIDEO_URL;
+    //'https://takeoff.jetstre.am/?account=revoola&file=20190617-1334-technical-dance-jess-advanced-30-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
 
   constructor(
     private router: Router,
