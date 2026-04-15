@@ -53,6 +53,13 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.isBrowserLaunch = this.detectBrowserLaunch();
     this.lockPortrait();
+    this.pwaInstallService.init();
+    if (!this.pwaInstallService.isPwaInstalled()) {
+      // Preserve deep-link id so the class can still be opened after install.
+      this.storeVideoKey(this.getRequestedVideoKey());
+      this.router.navigate(['/app-install-choice'], { replaceUrl: true });
+      return;
+    }
     this.setupPwaInstallState();
     this.loadVideoData();
   }
