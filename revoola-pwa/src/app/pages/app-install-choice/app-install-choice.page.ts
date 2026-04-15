@@ -90,7 +90,7 @@ export class AppInstallChoicePage implements OnInit, OnDestroy {
       this.isPwaInstalled = state.isInstalled;
       if (this.isPwaInstalled) {
         this.isInstallInProgress = false;
-        this.router.navigate(['/body-class-view'], { replaceUrl: true });
+       // this.router.navigate(['/body-class-view'], { replaceUrl: true });
       }
     });
   }
@@ -99,7 +99,7 @@ export class AppInstallChoicePage implements OnInit, OnDestroy {
     outcome: 'accepted' | 'dismissed' | 'unavailable' | 'error' | 'timeout'
   ): Promise<void> {
     if (outcome === 'accepted') {
-      await this.presentInstallToast('Your app was added to the home screen successfully.', 'success');
+      await this.presentInstallToast('Your app has been added to the home screen successfully. You can now access it directly from your home screen.', 'success');
       return;
     }
     if (outcome === 'dismissed') {
