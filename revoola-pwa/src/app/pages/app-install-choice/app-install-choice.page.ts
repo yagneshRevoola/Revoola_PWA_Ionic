@@ -30,6 +30,11 @@ export class AppInstallChoicePage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.pwaInstallService.init();
+    if (this.pwaInstallService.isPwaInstalled()) {
+      this.router.navigate(['/body-class-view'], { replaceUrl: true });
+      return;
+    }
     this.setupPwaInstallState();
   }
 
@@ -80,13 +85,12 @@ export class AppInstallChoicePage implements OnInit, OnDestroy {
   }
 
   private setupPwaInstallState(): void {
-    this.pwaInstallService.init();
-
     this.pwaStateSub = this.pwaInstallService.installState$.subscribe((state) => {
       this.canInstallPwa = state.canInstall;
       this.isPwaInstalled = state.isInstalled;
       if (this.isPwaInstalled) {
         this.isInstallInProgress = false;
+        this.router.navigate(['/body-class-view'], { replaceUrl: true });
       }
     });
   }

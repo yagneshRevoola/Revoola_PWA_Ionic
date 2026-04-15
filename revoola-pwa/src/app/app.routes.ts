@@ -32,6 +32,13 @@ export const routes: Routes = [
         (m) => m.BodyClassVideoPage
       ),
   },
+  {
+    path: ':videoId',
+    loadComponent: () =>
+      import('./pages/body-class-view/body-class-view.page').then(
+        (m) => m.BodyClassViewPage
+      ),
+  },
   // Fallback
   {
     path: '**',
