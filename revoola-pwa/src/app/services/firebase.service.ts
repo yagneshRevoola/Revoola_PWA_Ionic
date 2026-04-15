@@ -15,9 +15,40 @@ export class FirebaseService {
   private readonly base = environment.firebaseDbUrl;
   private readonly path = environment.firebaseBasePath;
 
-  // Hardcoded video key — same as Android: BodyClassViewFragment.videoKey
+  // Hardcoded video key — same as Android: BodyClassViewFragment.videoKey 
+  //Original 
   readonly DEFAULT_VIDEO_KEY = '20190617-1334-technical-dance-jess-advanced-30';
   readonly STATIC_VIDEO_URL = 'https://takeoff.jetstre.am/?account=revoola&file=20190617-1334-technical-dance-jess-advanced-30-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
+
+  //testing 1st video 
+  //readonly DEFAULT_VIDEO_KEY = '20190612-1712-pilates-sally-king-intermediate-45';
+  //readonly STATIC_VIDEO_URL = 'https://takeoff.jetstre.am/?account=revoola&file=20190612-1712-pilates-sally-king-intermediate-45-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
+
+
+   // testing 2nd video
+  //readonly DEFAULT_VIDEO_KEY = '20190611-0001-ride-floyd-robinson-intermediate-20';
+  //readonly STATIC_VIDEO_URL = 'https://takeoff.jetstre.am/?account=revoola&file=20190611-0001-ride-floyd-robinson-intermediate-20-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
+
+
+  // testing 3rd video
+  //readonly DEFAULT_VIDEO_KEY = '20190614-1039-yoga-jade-coles-beginner-20';
+  //readonly STATIC_VIDEO_URL = 'https://takeoff.jetstre.am/?account=revoola&file=20190614-1039-yoga-jade-coles-beginner-20-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
+
+  // testing 4th video
+  //readonly DEFAULT_VIDEO_KEY = '20190622-1603-yoga-jade-coles-beginner-20';
+ // readonly STATIC_VIDEO_URL = 'https://takeoff.jetstre.am/?account=revoola&file=20190622-1603-yoga-jade-coles-beginner-20-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
+
+  // testing 5th video
+  //readonly DEFAULT_VIDEO_KEY = '20190612-1107-pilates-sally-king-beginner-30';
+  //readonly STATIC_VIDEO_URL = 'https://takeoff.jetstre.am/?account=revoola&file=20190612-1107-pilates-sally-king-beginner-30-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
+
+  // testing 6th video
+  //readonly DEFAULT_VIDEO_KEY = '20190612-1432-hiit-john-mortimore-beginner-20';
+  //readonly STATIC_VIDEO_URL = 'https://takeoff.jetstre.am/?account=revoola&file=20190612-1432-hiit-john-mortimore-beginner-20-16-9.mp4&type=streaming&service=wowza&protocol=https&output=playlist.m3u8';
+
+  
+
+
 
   constructor(private http: HttpClient) {}
 
