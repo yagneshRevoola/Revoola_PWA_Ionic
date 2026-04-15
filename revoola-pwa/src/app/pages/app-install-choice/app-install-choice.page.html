@@ -17,10 +17,14 @@
         <ion-spinner *ngIf="isInstallInProgress" class="install-spinner" name="crescent"></ion-spinner>
         {{ isInstallInProgress ? 'INSTALLING...' : 'INSTALL THE APP CLIP' }}
       </button>
-
-      <button class="btn-install-full-version" (click)="openPlayStore()" aria-label="Install full version">
-        INSTALL THE FULL VERSION
-      </button>
     </ng-container>
+
+    <button
+      class="btn-install-full-version"
+      (click)="openPlayStore()"
+      aria-label="Install full version"
+    >
+      INSTALL THE FULL VERSION
+    </button>
   </div>
 </ion-content>
