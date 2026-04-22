@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "my-first-app-51df4"
-  }
+    "default": "rideathome-9080e",
+    "yes": "rideathome-9080e"
+  },
+  "targets": {},
+  "etags": {}
 }

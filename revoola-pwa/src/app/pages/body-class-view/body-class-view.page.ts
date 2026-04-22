@@ -85,6 +85,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
       .getBodyClassVideo(requestedVideoKey)
       .subscribe({
         next: (data) => {
+          console.log('[BodyClassView] Video data:', data);
           this.videoData = data;
           this.isLoading = false;
         },

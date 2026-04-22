@@ -29,9 +29,11 @@
     "@capacitor/keyboard": "8.0.1",
     "@capacitor/screen-orientation": "^8.0.1",
     "@capacitor/status-bar": "8.0.1",
+    "@capawesome/capacitor-posthog": "^8.4.1",
     "@ionic/angular": "^7.8.0",
     "@ionic/angular-toolkit": "^11.0.1",
     "ionicons": "^7.4.0",
+    "posthog-js": "^1.369.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"

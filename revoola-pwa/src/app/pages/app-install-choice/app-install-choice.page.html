@@ -1,30 +1,32 @@
 <ion-content [fullscreen]="true" class="install-choice-content">
   <div class="install-choice-wrapper">
-    <!-- <img src="assets/images/ic_revoola_logo.png" alt="Revoola" class="logo-image" /> -->
+    <img src="assets/images/ic_revoola_logo.png" alt="Revoola" class="logo-image" />
 
-    <div *ngIf="installStatusMessage" class="install-status" [ngClass]="'install-status--' + installStatusType">
-      <span>{{ installStatusMessage }}</span>
-      <button class="install-status-close" (click)="clearInstallStatus()" aria-label="Close status">x</button>
-    </div>
+    <div class="install-actions">
+      <div *ngIf="installStatusMessage" class="install-status" [ngClass]="'install-status--' + installStatusType">
+        <span>{{ installStatusMessage }}</span>
+        <button class="install-status-close" (click)="clearInstallStatus()" aria-label="Close status">x</button>
+      </div>
 
-    <ng-container *ngIf="!isPwaInstalled">
+      <ng-container *ngIf="!isPwaInstalled">
+        <button
+          class="btn-install-app-clip"
+          [disabled]="isInstallInProgress"
+          (click)="installAppClip()"
+          aria-label="Install app clip"
+        >
+          <ion-spinner *ngIf="isInstallInProgress" class="install-spinner" name="crescent"></ion-spinner>
+          {{ (isInstallInProgress ? 'Installing...' : 'GET FREE REVOOLA CLASS') | uppercase }}
+        </button>
+      </ng-container>
+
       <button
-        class="btn-install-app-clip"
-        [disabled]="isInstallInProgress"
-        (click)="installAppClip()"
-        aria-label="Install app clip"
+        class="btn-install-full-version"
+        (click)="openPlayStore()"
+        aria-label="Install the full Revoola version"
       >
-        <ion-spinner *ngIf="isInstallInProgress" class="install-spinner" name="crescent"></ion-spinner>
-        {{ isInstallInProgress ? 'INSTALLING...' : 'INSTALL THE APP CLIP' }}
+        INSTALL FULL APP
       </button>
-    </ng-container>
-
-    <button
-      class="btn-install-full-version"
-      (click)="openPlayStore()"
-      aria-label="Install full version"
-    >
-      INSTALL THE FULL VERSION
-    </button>
+    </div>
   </div>
 </ion-content>
