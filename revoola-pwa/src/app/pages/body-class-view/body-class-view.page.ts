@@ -160,7 +160,8 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
 
   // ── Navigation — mirrors findNavController().navigate(bodyView_to_bodyVideo) ─
   startClass(): void {
-    const defaultVideoUrl = this.videoData?.streamingUrl || '';
+    //const defaultVideoUrl = this.videoData?.streamingUrl || '';
+    const defaultVideoUrl = this.videoData?.videoLinkiPhonex || '';
     if (!this.videoData) {
       // Keep navigation responsive even if data hydration is delayed.
       this.router.navigate(['/body-class-video'], {
