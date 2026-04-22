@@ -337,10 +337,8 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
     }
   }
 
-  getMindIconName(type: string): string {
-    return (type || '').trim().toLowerCase() === 'audio'
-      ? 'headset-outline'
-      : 'videocam-outline';
+  isMindAudioType(type: string): boolean {
+    return (type || '').trim().toLowerCase() === 'audio';
   }
 
   private resolveVideoSrc(video: VideoModel | null): string {

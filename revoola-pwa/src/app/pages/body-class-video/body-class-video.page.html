@@ -119,9 +119,16 @@
           <div class="cdown-stat">
             <ng-container *ngIf="isMindVideo; else showDifficulty">
               <ion-icon
-                [name]="getMindIconName(videoData.type || '')"
+                *ngIf="isMindAudioType(videoData.type || '')"
+                name="headset-outline"
                 style="font-size:18px;color:#6d6d72"
               ></ion-icon>
+              <img
+                *ngIf="!isMindAudioType(videoData.type || '')"
+                class="cdown-stat-icon"
+                src="assets/images/body-class-icons/ic_video.svg"
+                alt=""
+              />
               <span class="cdown-stat-text">
                 {{ videoData.type }}
               </span>

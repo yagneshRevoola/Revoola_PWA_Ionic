@@ -70,10 +70,16 @@
             {{ videoData.type | uppercase }}
           </span>
           <ion-icon
-            *ngIf="isMindVideo"
-            [name]="getMindIconName(videoData.type)"
+            *ngIf="isMindVideo && isMindAudioType(videoData.type)"
+            name="headset-outline"
             style="font-size:18px;color:#6d6d72"
           ></ion-icon>
+          <img
+            *ngIf="isMindVideo && !isMindAudioType(videoData.type)"
+            class="stat-icon"
+            src="assets/images/body-class-icons/ic_video.svg"
+            alt=""
+          />
           <span class="stat-text" *ngIf="!isMindVideo" [ngClass]="getDifficultyClass(videoData.difficulty)">
             {{ videoData.difficulty | uppercase }}
           </span>

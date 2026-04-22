@@ -203,10 +203,8 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     return 'assets/images/body-class-icons/ic_medium_body_class.svg';
   }
 
-  getMindIconName(type: string): string {
-    return (type || '').trim().toLowerCase() === 'audio'
-      ? 'headset-outline'
-      : 'videocam-outline';
+  isMindAudioType(type: string): boolean {
+    return (type || '').trim().toLowerCase() === 'audio';
   }
 
   async installPwa(): Promise<void> {
