@@ -46,10 +46,15 @@
     </div>
 
     <!-- ── Card 2: Stats (time + difficulty) — mirrors card_2 ─────────────── -->
-    <div class="card stats-card" *ngIf="videoData">
+    <div
+      class="card stats-card"
+      *ngIf="videoData"
+      [style.border-radius.px]="isMindVideo ? 8 : null"
+      [style.box-shadow]="isMindVideo ? '0 1px 3px rgba(0,0,0,.1)' : null"
+    >
 
       <!-- lay_timevideo: two columns — duration | difficulty -->
-      <div class="stats-row">
+      <div class="stats-row" [style.height.px]="isMindVideo ? 56 : 50">
 
         <!-- Duration col — img_minutes + txt_minutes -->
         <div class="stat-col">
@@ -69,10 +74,10 @@
         </div>
       </div>
 
-      <div class="card-divider"></div>
+      <div class="card-divider" *ngIf="!isMindVideo"></div>
 
       <!-- lay_worklog: warmup | workout | cooldown — mirrors inlay_warmup/workout/cooldown -->
-      <div class="worklog-row">
+      <div class="worklog-row" *ngIf="!isMindVideo">
 
         <!-- Warmup -->
         <div class="worklog-item">

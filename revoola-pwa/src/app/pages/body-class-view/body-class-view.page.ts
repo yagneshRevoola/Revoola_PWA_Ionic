@@ -29,6 +29,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
   videoData: VideoModel | null = null;
   isLoading = true;
   hasError = false;
+  isMindVideo = false;
   canInstallPwa = false;
   isPwaInstalled = false;
   isInstallInProgress = false;
@@ -74,6 +75,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     this.isLoading = true;
     this.hasError = false;
     const requestedVideoKey = this.getRequestedVideoKey();
+    this.isMindVideo = this.shouldUseMindLayout(requestedVideoKey);
     if (!requestedVideoKey) {
       this.hasError = true;
       this.isLoading = false;
@@ -144,6 +146,10 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     } catch {
       // Ignore storage failures (private mode / quota).
     }
+  }
+
+  private shouldUseMindLayout(videoKey: string): boolean {
+    return (videoKey || '').toLowerCase().includes('mind');
   }
 
   // ── Navigation — mirrors findNavController().navigate(bodyView_to_bodyVideo) ─
