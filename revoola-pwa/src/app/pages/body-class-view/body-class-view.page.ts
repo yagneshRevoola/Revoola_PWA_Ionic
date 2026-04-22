@@ -76,7 +76,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     this.isLoading = true;
     this.hasError = false;
     const requestedVideoKey = this.getRequestedVideoKey();
-    this.isMindVideo = this.shouldUseMindLayout(requestedVideoKey);
+    this.isMindVideo = false;
     if (!requestedVideoKey) {
       this.hasError = true;
       this.isLoading = false;
@@ -90,6 +90,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
         next: (data) => {
           console.log('[BodyClassView] Video data:', data);
           this.videoData = data;
+          this.isMindVideo = this.shouldUseMindLayout(data, requestedVideoKey);
           this.isLoading = false;
         },
         error: (err) => {
@@ -149,8 +150,12 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     }
   }
 
-  private shouldUseMindLayout(videoKey: string): boolean {
-    return (videoKey || '').toLowerCase().includes('mind');
+  private shouldUseMindLayout(video: VideoModel | null, fallbackVideoKey: string): boolean {
+    const responseId = String((video as Record<string, unknown> | null)?.['id'] ?? '').trim();
+    if (responseId) {
+      return responseId.toLowerCase().includes('m');
+    }
+    return (fallbackVideoKey || '').trim().toLowerCase().includes('m');
   }
 
   // ── Navigation — mirrors findNavController().navigate(bodyView_to_bodyVideo) ─
