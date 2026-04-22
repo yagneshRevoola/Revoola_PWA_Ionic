@@ -159,7 +159,10 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     if (!this.videoData) {
       // Keep navigation responsive even if data hydration is delayed.
       this.router.navigate(['/body-class-video'], {
-        state: { videoUrl: defaultVideoUrl },
+        state: {
+          videoUrl: defaultVideoUrl,
+          isMindVideo: this.isMindVideo,
+        },
         replaceUrl: true,
       });
       return;
@@ -168,6 +171,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
       state: {
         videoData: JSON.stringify(this.videoData),
         videoUrl: defaultVideoUrl,
+        isMindVideo: this.isMindVideo,
       },
       replaceUrl: true,
     });
