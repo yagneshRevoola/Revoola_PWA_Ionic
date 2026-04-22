@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { ToastController } from '@ionic/angular';
 import {
   IonContent,
+  IonIcon,
   IonSpinner,
 } from '@ionic/angular/standalone';
 
@@ -21,7 +22,7 @@ import { VideoModel } from '../../models/video.model';
 @Component({
   selector: 'app-body-class-view',
   standalone: true,
-  imports: [CommonModule, IonContent, IonSpinner],
+  imports: [CommonModule, IonContent, IonSpinner, IonIcon],
   templateUrl: './body-class-view.page.html',
   styleUrls: ['./body-class-view.page.scss'],
 })
@@ -190,6 +191,12 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     if (difficulty === 'Beginner') return 'assets/images/body-class-icons/ic_easy_body_class.svg';
     if (difficulty === 'Advanced') return 'assets/images/body-class-icons/ic_hard_body_class.svg';
     return 'assets/images/body-class-icons/ic_medium_body_class.svg';
+  }
+
+  getMindIconName(type: string): string {
+    return (type || '').trim().toLowerCase() === 'audio'
+      ? 'headset-outline'
+      : 'videocam-outline';
   }
 
   async installPwa(): Promise<void> {

@@ -66,11 +66,23 @@
 
         <!-- Difficulty col — img_video + txt_video -->
         <div class="stat-col stat-col--right">
-          
-          <span class="stat-text" [ngClass]="getDifficultyClass(videoData.difficulty)">
+          <span class="stat-text" *ngIf="isMindVideo">
+            {{ videoData.type | uppercase }}
+          </span>
+          <ion-icon
+            *ngIf="isMindVideo"
+            [name]="getMindIconName(videoData.type)"
+            style="font-size:18px;color:#6d6d72"
+          ></ion-icon>
+          <span class="stat-text" *ngIf="!isMindVideo" [ngClass]="getDifficultyClass(videoData.difficulty)">
             {{ videoData.difficulty | uppercase }}
           </span>
-          <img class="stat-difficulty-icon" [src]="getDifficultyIconPath(videoData.difficulty)" alt="" />
+          <img
+            *ngIf="!isMindVideo"
+            class="stat-difficulty-icon"
+            [src]="getDifficultyIconPath(videoData.difficulty)"
+            alt=""
+          />
         </div>
       </div>
 
