@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { IonContent } from '@ionic/angular/standalone';
+import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
@@ -31,7 +31,7 @@ import { VideoModel } from '../../models/video.model';
 @Component({
   selector: 'app-body-class-video',
   standalone: true,
-  imports: [CommonModule, IonContent],
+  imports: [CommonModule, IonContent, IonIcon],
   templateUrl: './body-class-video.page.html',
   styleUrls: ['./body-class-video.page.scss'],
 })
@@ -67,6 +67,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   // Difficulty
   difficultyClass = '';
   difficultyIconPath = '';
+  isMindVideo = false;
 
   // ── Private ──────────────────────────────────────────────────────────────
   private countdownTimer: ReturnType<typeof setInterval> | null = null;
@@ -137,6 +138,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state ?? history.state;
     const passedVideoUrl = this.normalizeUrl(state?.['videoUrl'] ?? state?.['videoId'] ?? '');
+    this.isMindVideo = Boolean(state?.['isMindVideo']);
 
     if (state?.['videoData']) {
       try {
@@ -333,6 +335,10 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
       this.difficultyClass = 'difficulty-intermediate';
       this.difficultyIconPath = 'assets/images/body-class-icons/ic_medium_body_class.svg';
     }
+  }
+
+  isMindAudioType(type: string): boolean {
+    return (type || '').trim().toLowerCase() === 'audio';
   }
 
   private resolveVideoSrc(video: VideoModel | null): string {

@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { ToastController } from '@ionic/angular';
 import {
   IonContent,
+  IonIcon,
   IonSpinner,
 } from '@ionic/angular/standalone';
 
@@ -21,7 +22,7 @@ import { VideoModel } from '../../models/video.model';
 @Component({
   selector: 'app-body-class-view',
   standalone: true,
-  imports: [CommonModule, IonContent, IonSpinner],
+  imports: [CommonModule, IonContent, IonSpinner, IonIcon],
   templateUrl: './body-class-view.page.html',
   styleUrls: ['./body-class-view.page.scss'],
 })
@@ -29,6 +30,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
   videoData: VideoModel | null = null;
   isLoading = true;
   hasError = false;
+  isMindVideo = false;
   canInstallPwa = false;
   isPwaInstalled = false;
   isInstallInProgress = false;
@@ -74,6 +76,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     this.isLoading = true;
     this.hasError = false;
     const requestedVideoKey = this.getRequestedVideoKey();
+    this.isMindVideo = false;
     if (!requestedVideoKey) {
       this.hasError = true;
       this.isLoading = false;
@@ -87,6 +90,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
         next: (data) => {
           console.log('[BodyClassView] Video data:', data);
           this.videoData = data;
+          this.isMindVideo = this.shouldUseMindLayout(data, requestedVideoKey);
           this.isLoading = false;
         },
         error: (err) => {
@@ -146,13 +150,25 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     }
   }
 
+  private shouldUseMindLayout(video: VideoModel | null, fallbackVideoKey: string): boolean {
+    const responseId = String((video as Record<string, unknown> | null)?.['id'] ?? '').trim();
+    if (responseId) {
+      return responseId.toLowerCase().includes('m');
+    }
+    return (fallbackVideoKey || '').trim().toLowerCase().includes('m');
+  }
+
   // ── Navigation — mirrors findNavController().navigate(bodyView_to_bodyVideo) ─
   startClass(): void {
-    const defaultVideoUrl = this.videoData?.streamingUrl || '';
+    //const defaultVideoUrl = this.videoData?.streamingUrl || '';
+    const defaultVideoUrl = this.videoData?.videoLinkiPhonex || '';
     if (!this.videoData) {
       // Keep navigation responsive even if data hydration is delayed.
       this.router.navigate(['/body-class-video'], {
-        state: { videoUrl: defaultVideoUrl },
+        state: {
+          videoUrl: defaultVideoUrl,
+          isMindVideo: this.isMindVideo,
+        },
         replaceUrl: true,
       });
       return;
@@ -161,6 +177,7 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
       state: {
         videoData: JSON.stringify(this.videoData),
         videoUrl: defaultVideoUrl,
+        isMindVideo: this.isMindVideo,
       },
       replaceUrl: true,
     });
@@ -184,6 +201,10 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     if (difficulty === 'Beginner') return 'assets/images/body-class-icons/ic_easy_body_class.svg';
     if (difficulty === 'Advanced') return 'assets/images/body-class-icons/ic_hard_body_class.svg';
     return 'assets/images/body-class-icons/ic_medium_body_class.svg';
+  }
+
+  isMindAudioType(type: string): boolean {
+    return (type || '').trim().toLowerCase() === 'audio';
   }
 
   async installPwa(): Promise<void> {

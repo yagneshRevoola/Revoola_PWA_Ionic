@@ -46,10 +46,15 @@
     </div>
 
     <!-- ── Card 2: Stats (time + difficulty) — mirrors card_2 ─────────────── -->
-    <div class="card stats-card" *ngIf="videoData">
+    <div
+      class="card stats-card"
+      *ngIf="videoData"
+      [style.border-radius.px]="isMindVideo ? 8 : null"
+      [style.box-shadow]="isMindVideo ? '0 1px 3px rgba(0,0,0,.1)' : null"
+    >
 
       <!-- lay_timevideo: two columns — duration | difficulty -->
-      <div class="stats-row">
+      <div class="stats-row" [style.height.px]="isMindVideo ? 56 : 50">
 
         <!-- Duration col — img_minutes + txt_minutes -->
         <div class="stat-col">
@@ -61,18 +66,36 @@
 
         <!-- Difficulty col — img_video + txt_video -->
         <div class="stat-col stat-col--right">
-          
-          <span class="stat-text" [ngClass]="getDifficultyClass(videoData.difficulty)">
+          <span class="stat-text" *ngIf="isMindVideo">
+            {{ videoData.type | uppercase }}
+          </span>
+          <ion-icon
+            *ngIf="isMindVideo && isMindAudioType(videoData.type)"
+            name="headset-outline"
+            style="font-size:18px;color:#6d6d72"
+          ></ion-icon>
+          <img
+            *ngIf="isMindVideo && !isMindAudioType(videoData.type)"
+            class="stat-icon"
+            src="assets/images/body-class-icons/ic_video.svg"
+            alt=""
+          />
+          <span class="stat-text" *ngIf="!isMindVideo" [ngClass]="getDifficultyClass(videoData.difficulty)">
             {{ videoData.difficulty | uppercase }}
           </span>
-          <img class="stat-difficulty-icon" [src]="getDifficultyIconPath(videoData.difficulty)" alt="" />
+          <img
+            *ngIf="!isMindVideo"
+            class="stat-difficulty-icon"
+            [src]="getDifficultyIconPath(videoData.difficulty)"
+            alt=""
+          />
         </div>
       </div>
 
-      <div class="card-divider"></div>
+      <div class="card-divider" *ngIf="!isMindVideo"></div>
 
       <!-- lay_worklog: warmup | workout | cooldown — mirrors inlay_warmup/workout/cooldown -->
-      <div class="worklog-row">
+      <div class="worklog-row" *ngIf="!isMindVideo">
 
         <!-- Warmup -->
         <div class="worklog-item">

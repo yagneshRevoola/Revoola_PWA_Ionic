@@ -22,7 +22,7 @@ export class FirebaseService {
 
   /** proposedstructure/revoolaVideos/{videoId}.json */
   private videoBodyPath(videoId: string): string {
-    return `${this.base}/${this.path}/revoolaVideos/${videoId}.json`;
+    return `${this.base}/${this.path}/revoolaMindAndBodyVideos/${videoId}.json`;
   }
 
   /** proposedstructure/revoolaVideoKeys/forAll/listOfVideos.json */

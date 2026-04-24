@@ -117,10 +117,28 @@
 
           <!-- Difficulty col -->
           <div class="cdown-stat">
-            <img class="cdown-difficulty-icon" [src]="difficultyIconPath" alt="" />
-            <span class="cdown-stat-text" [ngClass]="difficultyClass">
-              {{ videoData.difficulty }}
-            </span>
+            <ng-container *ngIf="isMindVideo; else showDifficulty">
+              <ion-icon
+                *ngIf="isMindAudioType(videoData.type || '')"
+                name="headset-outline"
+                style="font-size:18px;color:#6d6d72"
+              ></ion-icon>
+              <img
+                *ngIf="!isMindAudioType(videoData.type || '')"
+                class="cdown-stat-icon"
+                src="assets/images/body-class-icons/ic_video.svg"
+                alt=""
+              />
+              <span class="cdown-stat-text">
+                {{ videoData.type }}
+              </span>
+            </ng-container>
+            <ng-template #showDifficulty>
+              <img class="cdown-difficulty-icon" [src]="difficultyIconPath" alt="" />
+              <span class="cdown-stat-text" [ngClass]="difficultyClass">
+                {{ videoData.difficulty }}
+              </span>
+            </ng-template>
           </div>
         </div>
       </div>
