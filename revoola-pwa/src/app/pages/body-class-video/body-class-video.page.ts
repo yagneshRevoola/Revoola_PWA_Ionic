@@ -140,13 +140,16 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   private readNavState(): boolean {
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state ?? history.state;
-    const passedVideoUrl = this.normalizeUrl(state?.['videoUrl'] ?? state?.['videoId'] ?? '');
+    const passedVideoUrl = this.normalizeUrl(state?.['videoUrl'] ?? '');
+    this.videoId = (state?.['videoId'] ?? '').trim();
     this.isMindVideo = Boolean(state?.['isMindVideo']);
 
     if (state?.['videoData']) {
       try {
         this.videoData = JSON.parse(state['videoData']) as VideoModel;
-        this.videoId = state['videoId'] ?? '';
+        if (!this.videoId) {
+          this.videoId = String(((this.videoData as unknown as Record<string, unknown>)?.['id']) ?? '').trim();
+        }
         this.videoSrc = passedVideoUrl || this.resolveVideoSrc(this.videoData);
         this.setDifficulty(this.videoData?.difficulty ?? '');
         return !!this.videoSrc;

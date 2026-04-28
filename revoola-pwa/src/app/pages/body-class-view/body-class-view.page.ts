@@ -160,12 +160,13 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
 
   // ── Navigation — mirrors findNavController().navigate(bodyView_to_bodyVideo) ─
   startClass(): void {
-    //const defaultVideoUrl = this.videoData?.streamingUrl || '';
-    const defaultVideoUrl = this.videoData?.videoLinkiPhonex || '';
+    const defaultVideoUrl = this.resolveVideoUrl(this.videoData);
+    const videoId = this.getRequestedVideoKey();
     if (!this.videoData) {
       // Keep navigation responsive even if data hydration is delayed.
       this.router.navigate(['/body-class-video'], {
         state: {
+          videoId,
           videoUrl: defaultVideoUrl,
           isMindVideo: this.isMindVideo,
         },
@@ -175,12 +176,26 @@ export class BodyClassViewPage implements OnInit, OnDestroy {
     }
     this.router.navigate(['/body-class-video'], {
       state: {
+        videoId,
         videoData: JSON.stringify(this.videoData),
         videoUrl: defaultVideoUrl,
         isMindVideo: this.isMindVideo,
       },
       replaceUrl: true,
     });
+  }
+
+  private resolveVideoUrl(video: VideoModel | null): string {
+    if (!video) return '';
+    return (
+      video.videoLinkiPhonex ||
+      video.videoLinkiPhone ||
+      video.videoLinkiPad ||
+      video.streamingUrlIphonex ||
+      video.streamingUrlIpad ||
+      video.streamingUrl ||
+      ''
+    ).trim();
   }
 
   // ── Back — mirrors stopButtonProcess() ───────────────────────────────────
