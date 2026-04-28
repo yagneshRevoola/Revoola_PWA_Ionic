@@ -1,32 +1,104 @@
 <ion-content [fullscreen]="true" class="install-choice-content">
-  <div class="install-choice-wrapper">
+  <div class="install-choice-wrapper" [attr.data-variant]="variant" [attr.data-state]="isPwaInstalled ? 'post-install' : 'pre-install'">
     <img src="assets/images/ic_revoola_logo.png" alt="Revoola" class="logo-image" />
 
-    <div class="install-actions">
-      <div *ngIf="installStatusMessage" class="install-status" [ngClass]="'install-status--' + installStatusType">
-        <span>{{ installStatusMessage }}</span>
-        <button class="install-status-close" (click)="clearInstallStatus()" aria-label="Close status">x</button>
+    <!-- ── PRE-INSTALL STATE ─────────────────────────────────────────── -->
+    <ng-container *ngIf="!isPwaInstalled">
+      <figure class="hero-frame">
+        <img *ngIf="variant === 'mind'" src="assets/images/hero-mind.jpg" alt="" class="hero-image" />
+        <img *ngIf="variant === 'body'" src="assets/images/hero-body.jpg" alt="" class="hero-image" />
+      </figure>
+
+      <div class="install-copy">
+        <p class="install-eyebrow">{{ variant === 'mind' ? 'Not sure how?' : 'Ready to move?' }}</p>
+        <h1 class="install-headline">
+          Your
+          <span class="install-headline-accent">
+            {{ variant === 'mind' ? '7-minute Mind class' : '20-minute Body class' }}
+          </span>
+          is ready.
+        </h1>
+        <p class="install-subhead">No download. Just tap to start.</p>
       </div>
 
-      <ng-container *ngIf="!isPwaInstalled">
+      <span *ngIf="variant === 'body'" class="install-class-chip">
+        <span class="install-class-chip-dot" aria-hidden="true"></span>
+        With Jess Stent · Beginner friendly
+      </span>
+
+      <ol class="install-steps" aria-label="How it works">
+        <li class="install-step">
+          <span class="install-step-num">1</span>
+          <span class="install-step-label">Tap Start</span>
+        </li>
+        <li class="install-step">
+          <span class="install-step-num">2</span>
+          <span class="install-step-label">Confirm install</span>
+        </li>
+        <li class="install-step">
+          <span class="install-step-num">3</span>
+          <span class="install-step-label">Tap the new icon</span>
+        </li>
+      </ol>
+
+      <div class="install-actions">
+        <div *ngIf="installStatusMessage" class="install-status" [ngClass]="'install-status--' + installStatusType">
+          <span>{{ installStatusMessage }}</span>
+          <button class="install-status-close" (click)="clearInstallStatus()" aria-label="Close status">x</button>
+        </div>
+
         <button
-          class="btn-install-app-clip"
+          class="btn-primary"
           [disabled]="isInstallInProgress"
           (click)="installAppClip()"
-          aria-label="Install app clip"
+          [attr.aria-label]="variant === 'mind' ? 'Start your free Mind class' : 'Start your free Body class'"
         >
           <ion-spinner *ngIf="isInstallInProgress" class="install-spinner" name="crescent"></ion-spinner>
-          {{ (isInstallInProgress ? 'Installing...' : 'GET FREE REVOOLA CLASS') | uppercase }}
+          {{ isInstallInProgress ? 'Starting…' : 'Start your free class' }}
         </button>
-      </ng-container>
 
-      <button
-        class="btn-install-full-version"
-        (click)="openPlayStore()"
-        aria-label="Install the full Revoola version"
-      >
-        INSTALL FULL APP
-      </button>
-    </div>
+        <button
+          class="btn-secondary-link"
+          (click)="openPlayStore()"
+          aria-label="Get the full Revoola app on Google Play"
+        >
+          Want the full Revoola? Get it on Google Play →
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ── POST-INSTALL STATE ────────────────────────────────────────── -->
+    <ng-container *ngIf="isPwaInstalled">
+      <div class="post-install">
+        <div class="post-install-arrow" aria-hidden="true">
+          <svg viewBox="0 0 48 64" xmlns="http://www.w3.org/2000/svg" focusable="false">
+            <path d="M24 6 L24 54 M10 20 L24 6 L38 20" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="post-install-icon-card" aria-hidden="true">
+          <img src="assets/icons/icon-512x512.png" alt="" class="post-install-icon" />
+        </div>
+
+        <div class="post-install-copy">
+          <p class="install-eyebrow">Almost there!</p>
+          <h1 class="install-headline">
+            Tap the new <span class="install-headline-accent">Revoola</span> icon on your home screen
+          </h1>
+          <p class="install-subhead">to start your {{ variant === 'mind' ? '7-minute Mind' : '20-minute Body' }} class.</p>
+        </div>
+
+        <div class="install-actions">
+          <div *ngIf="installStatusMessage" class="install-status" [ngClass]="'install-status--' + installStatusType">
+            <span>{{ installStatusMessage }}</span>
+            <button class="install-status-close" (click)="clearInstallStatus()" aria-label="Close status">x</button>
+          </div>
+
+          <p class="post-install-hint">
+            Look for the green <strong>Revoola</strong> icon — it was just added to your home screen.
+          </p>
+        </div>
+      </div>
+    </ng-container>
   </div>
 </ion-content>

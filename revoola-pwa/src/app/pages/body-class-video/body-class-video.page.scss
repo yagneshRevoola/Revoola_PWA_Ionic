@@ -340,6 +340,14 @@
   line-height: 1.4;
 }
 
+.dialog-subline {
+  font-family: var(--font-regular);
+  font-size: 13px;
+  color: var(--app-text-gray, #888);
+  margin: -4px 0 14px;
+  letter-spacing: 0.2px;
+}
+
 .dialog-message {
   font-family: var(--font-regular);
   font-size: 15px;
@@ -350,19 +358,21 @@
 
 .dialog-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .dialog-btn {
-  padding: 10px 20px;
-  border-radius: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 999px;
   font-family: var(--font-semibold);
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
   border: none;
   letter-spacing: 0.3px;
+  text-align: center;
 
   &:active { opacity: 0.8; }
 

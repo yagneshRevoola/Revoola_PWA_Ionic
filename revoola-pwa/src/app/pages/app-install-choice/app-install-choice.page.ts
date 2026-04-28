@@ -19,9 +19,11 @@ export class AppInstallChoicePage implements OnInit, OnDestroy {
   isInstallInProgress = false;
   installStatusMessage = '';
   installStatusType: 'success' | 'warning' | 'error' | 'info' = 'info';
+  variant: 'mind' | 'body' = 'mind';
 
   private pwaStateSub?: Subscription;
   private readonly FULL_APP_PACKAGE = 'com.revoola';
+  private readonly storageVideoKey = 'revoola:lastVideoKey';
 
   constructor(
     private router: Router,
@@ -35,7 +37,20 @@ export class AppInstallChoicePage implements OnInit, OnDestroy {
       this.router.navigate(['/body-class-view'], { replaceUrl: true });
       return;
     }
+    this.variant = this.detectVariant();
     this.setupPwaInstallState();
+  }
+
+  // Mirrors shouldUseMindLayout in body-class-view.page.ts:
+  // videoId contains 'm' (case-insensitive) → mind, else → body.
+  private detectVariant(): 'mind' | 'body' {
+    let key = '';
+    try {
+      key = (localStorage.getItem(this.storageVideoKey) ?? '').trim();
+    } catch {
+      /* private mode / quota — fall through to default */
+    }
+    return key.toLowerCase().includes('m') ? 'mind' : 'body';
   }
 
   ngOnDestroy(): void {

@@ -14,6 +14,7 @@ import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { VideoModel } from '../../models/video.model';
+import { PosthogService } from '../../services/posthog.service';
 
 /**
  * Mirrors BodyClassVideoFragment exactly.
@@ -62,6 +63,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   // Upgrade dialog
   showUpgradeDialog = false;
+  dialogVariant: 'completion' | 'exit' = 'exit';
   forceLandscapeVisualFallback = false;
 
   // Difficulty
@@ -88,7 +90,8 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private zone: NgZone
+    private zone: NgZone,
+    private posthog: PosthogService
   ) {}
 
   ngOnInit(): void {
@@ -274,11 +277,22 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
       video.currentTime = 0;
     }
     this.clearTimers();
+    this.dialogVariant = 'exit';
     this.showUpgradeDialog = true;
+    void this.posthog.capture('upgrade_dialog_shown', this.upgradeDialogProps());
+  }
+
+  /** Natural class completion — high-intent moment, show completion variant of upgrade dialog. */
+  onVideoEnded(): void {
+    this.clearTimers();
+    this.dialogVariant = 'completion';
+    this.showUpgradeDialog = true;
+    void this.posthog.capture('upgrade_dialog_shown', this.upgradeDialogProps());
   }
 
   // ── Upgrade dialog actions ────────────────────────────────────────────────
   openPlayStore(): void {
+    void this.posthog.capture('upgrade_dialog_cta_clicked', this.upgradeDialogProps());
     this.showUpgradeDialog = false;
     const url = `https://play.google.com/store/apps/details?id=${this.FULL_APP_PACKAGE}`;
     window.open(url, '_blank');
@@ -288,6 +302,21 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   dismissDialog(): void {
     this.showUpgradeDialog = false;
     this.navigateHome();
+  }
+
+  private upgradeDialogProps() {
+    return {
+      variant: this.dialogVariant,
+      surface: this.isMindVideo ? 'mind' : 'body',
+      video_id: this.videoId || null,
+      duration_mins: this.classDurationMins,
+    };
+  }
+
+  /** Rounded class length in minutes, or null if unknown. Used in the completion subline. */
+  get classDurationMins(): number | null {
+    const raw = Number(this.videoData?.duration);
+    return Number.isFinite(raw) && raw > 0 ? Math.round(raw) : null;
   }
 
   private navigateHome(): void {
