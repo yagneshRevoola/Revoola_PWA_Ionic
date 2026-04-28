@@ -1,12 +1,12 @@
 <ion-content [fullscreen]="true" class="install-choice-content">
   <div class="install-choice-wrapper" [attr.data-variant]="variant" [attr.data-state]="isPwaInstalled ? 'post-install' : 'pre-install'">
-    <img src="assets/images/ic_revoola_logo.png" alt="Revoola" class="logo-image" />
+    <img [src]="cacheBustAsset('assets/images/ic_revoola_logo.png')" alt="Revoola" class="logo-image" />
 
     <!-- ── PRE-INSTALL STATE ─────────────────────────────────────────── -->
     <ng-container *ngIf="!isPwaInstalled">
       <figure class="hero-frame">
-        <img *ngIf="variant === 'mind'" src="assets/images/hero-mind.jpg" alt="" class="hero-image" />
-        <img *ngIf="variant === 'body'" src="assets/images/hero-body.jpg" alt="" class="hero-image" />
+        <img *ngIf="variant === 'mind'" [src]="cacheBustAsset('assets/images/hero-mind.jpg')" alt="" class="hero-image" />
+        <img *ngIf="variant === 'body'" [src]="cacheBustAsset('assets/images/hero-body.jpg')" alt="" class="hero-image" />
       </figure>
 
       <div class="install-copy">
@@ -77,7 +77,7 @@
         </div>
 
         <div class="post-install-icon-card" aria-hidden="true">
-          <img src="assets/icons/icon-512x512.png" alt="" class="post-install-icon" />
+          <img [src]="cacheBustAsset('assets/icons/icon-512x512.png')" alt="" class="post-install-icon" />
         </div>
 
         <div class="post-install-copy">

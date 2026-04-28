@@ -18,6 +18,7 @@ import { PwaInstallService } from '../../services/pwa-install.service';
 export class SplashPage implements OnInit, OnDestroy {
   private timer: ReturnType<typeof setTimeout> | null = null;
   isDesktop = false;
+  readonly cacheBuster = Date.now();
 
   constructor(
     private router: Router,
@@ -66,5 +67,12 @@ export class SplashPage implements OnInit, OnDestroy {
     } catch {
       return false;
     }
+  }
+
+  cacheBustAsset(path: string): string {
+    const value = (path || '').trim();
+    if (!value) return '';
+    const cacheKey = `_cb=${this.cacheBuster}`;
+    return value.includes('?') ? `${value}&${cacheKey}` : `${value}?${cacheKey}`;
   }
 }

@@ -392,7 +392,13 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
     if (!value) return '';
 
     // Browsers block mixed content; normalize legacy http links.
-    return value.startsWith('http://') ? value.replace('http://', 'https://') : value;
+    const normalized = value.startsWith('http://') ? value.replace('http://', 'https://') : value;
+    return this.withCacheBuster(normalized);
+  }
+
+  private withCacheBuster(url: string): string {
+    const cacheKey = `_cb=${Date.now()}`;
+    return url.includes('?') ? `${url}&${cacheKey}` : `${url}?${cacheKey}`;
   }
 
   private tryPlayFromUserGesture(): void {
