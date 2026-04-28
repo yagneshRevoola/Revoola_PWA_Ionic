@@ -12,7 +12,7 @@
 .install-choice-wrapper {
   position: relative;
   overflow: hidden;
-  min-height: 100%;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -45,7 +45,6 @@
 .logo-image {
   width: min(55vw, 200px);
   height: auto;
-  margin-top: 4px;
 }
 
 .hero-frame {
@@ -54,8 +53,20 @@
   aspect-ratio: 4 / 5;
   border-radius: 24px;
   overflow: hidden;
-  background: #eef3ee;
   box-shadow: 0 12px 30px rgba(53, 186, 74, 0.18);
+}
+
+.install-choice-wrapper[data-variant='body'][data-state='pre-install'] .hero-frame {
+  width: min(64vw, 230px);
+}
+
+.install-choice-wrapper[data-variant='body'][data-state='pre-install'] {
+  gap: 12px;
+  padding-bottom: 10px;
+}
+
+.install-choice-wrapper[data-variant='body'][data-state='pre-install'] .install-steps {
+  padding: 8px 10px;
 }
 
 .hero-image {
@@ -79,7 +90,6 @@
   font-family: var(--font-bold, var(--font-semibold));
   font-size: 15px;
   color: var(--brand-green);
-  letter-spacing: 0.4px;
 }
 
 .install-headline {
@@ -88,7 +98,6 @@
   font-size: clamp(22px, 6.4vw, 28px);
   line-height: 1.18;
   color: var(--brand-ink);
-  letter-spacing: -0.2px;
 }
 
 .install-headline-accent {
@@ -174,10 +183,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
-/* ── Post-install state ──────────────────────────────────────────── */
 .post-install {
   width: 100%;
   max-width: 360px;
@@ -191,12 +200,6 @@
   width: 36px;
   height: 48px;
   color: var(--brand-green);
-}
-
-.post-install-arrow svg {
-  width: 100%;
-  height: 100%;
-  display: block;
 }
 
 .post-install-icon-card {
@@ -238,20 +241,14 @@
   width: 100%;
 }
 
-.post-install-hint strong {
-  color: var(--brand-green);
-  font-weight: 700;
-}
-
 .btn-primary {
   width: 100%;
-  min-height: 58px;
+  min-height: 54px;
   border: none;
   border-radius: 50px;
   font-family: var(--font-bold, var(--font-semibold));
-  font-size: 17px;
-  letter-spacing: 0.3px;
-  padding: 16px 20px;
+  font-size: 16px;
+  padding: 14px 20px;
   background: var(--brand-green);
   color: #ffffff;
   display: flex;
@@ -260,12 +257,6 @@
   gap: 10px;
   box-shadow: 0 10px 22px rgba(53, 186, 74, 0.32);
   cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: 0 6px 14px rgba(53, 186, 74, 0.28);
 }
 
 .btn-primary:disabled {
@@ -276,11 +267,10 @@
 .btn-secondary-link {
   background: transparent;
   border: none;
-  padding: 6px 8px;
-  font-size: 14px;
-  line-height: 1.4;
+  padding: 2px 8px;
+  font-size: 13px;
+  line-height: 1.25;
   color: var(--brand-muted);
-  cursor: pointer;
 }
 
 .install-status {
@@ -321,7 +311,6 @@
   color: inherit;
   font-size: 16px;
   line-height: 1;
-  cursor: pointer;
 }
 
 .install-spinner {
