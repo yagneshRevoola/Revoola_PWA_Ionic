@@ -50,6 +50,20 @@
   background: #000;
 }
 
+.tap-to-play-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 25;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font: 700 14px var(--font-semibold);
+  pointer-events: none;
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // LEFT PANEL — leftsideview (wraps inlay_time)
 // min-width 100dp, touch target for swipe gesture

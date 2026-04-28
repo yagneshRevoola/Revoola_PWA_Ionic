@@ -2,6 +2,7 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  AfterViewInit,
   ViewChild,
   ElementRef,
   NgZone,
@@ -36,7 +37,7 @@ import { PosthogService } from '../../services/posthog.service';
   templateUrl: './body-class-video.page.html',
   styleUrls: ['./body-class-video.page.scss'],
 })
-export class BodyClassVideoPage implements OnInit, OnDestroy {
+export class BodyClassVideoPage implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('videoEl') videoElRef!: ElementRef<HTMLVideoElement>;
 
   // ── State ────────────────────────────────────────────────────────────────
@@ -51,6 +52,9 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   // Controls overlay visibility (mirrors pauseStopVideoView)
   controlsVisible = false;
+
+  /** Shown when autoplay failed or media error — invite user to tap. */
+  showTapToPlayHint = false;
 
   // Pause state (mirrors pauseVideo)
   isPaused = false;
@@ -79,6 +83,9 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   private isOrientationLockActive = false;
   private isVideoReadyToStart = false;
   private playbackInitialized = false;
+  private playStartInFlight = false;
+  /** One automatic load+play retry after a media `error` event. */
+  private mediaErrorAutoRetried = false;
 
   // Swipe gesture tracking (mirrors SwipeGestureListener)
   private touchStartX = 0;
@@ -108,6 +115,12 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   }
 
   async ionViewWillEnter(): Promise<void> {
+    const hasState = this.readNavState();
+    if (!hasState) {
+      this.router.navigate(['/body-class-view'], { replaceUrl: true });
+      return;
+    }
+    this.resetPlaybackSession();
     this.isOrientationLockActive = true;
     this.updateVisualLandscapeFallback();
     this.startLandscapeEnforcer();
@@ -115,6 +128,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   }
 
   async ionViewDidEnter(): Promise<void> {
+    this.startCountdown();
     this.updateVisualLandscapeFallback();
     await this.forceLandscapeLock();
   }
@@ -151,6 +165,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
           this.videoId = String(((this.videoData as unknown as Record<string, unknown>)?.['id']) ?? '').trim();
         }
         this.videoSrc = passedVideoUrl || this.resolveVideoSrc(this.videoData);
+        this.mediaErrorAutoRetried = false;
         this.setDifficulty(this.videoData?.difficulty ?? '');
         return !!this.videoSrc;
       } catch (e) {
@@ -160,6 +175,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
     if (passedVideoUrl) {
       this.videoSrc = passedVideoUrl;
+      this.mediaErrorAutoRetried = false;
       return true;
     }
 
@@ -168,9 +184,34 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   // ── After view — start video + countdown ─────────────────────────────────
   ngAfterViewInit(): void {
-    this.startCountdown();
     // Ensure orientation lock is re-applied once DOM/video area is mounted.
     void this.forceLandscapeLock();
+  }
+
+  /**
+   * Ionic keeps route components alive in the outlet stack.
+   * Reinitialize transient playback state on every re-entry.
+   */
+  private resetPlaybackSession(): void {
+    this.clearTimers();
+    this.countdownVisible = true;
+    this.countdownValue = 5;
+    this.controlsVisible = false;
+    this.showTapToPlayHint = false;
+    this.isPaused = false;
+    this.autoplayMuted = true;
+    this.remainingTime = '00:00';
+    this.isVideoReadyToStart = false;
+    this.playbackInitialized = false;
+    this.playStartInFlight = false;
+    this.mediaErrorAutoRetried = false;
+
+    const video = this.videoElRef?.nativeElement;
+    if (!video) return;
+    video.pause();
+    video.currentTime = 0;
+    video.muted = true;
+    video.load();
   }
 
   // ── Countdown — mirrors RLstartCountdown (6000ms, 1s intervals) ──────────
@@ -185,7 +226,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
           clearInterval(this.countdownTimer!);
           this.countdownTimer = null;
           this.countdownVisible = false;
-          this.startPlaybackIfReady();
+          void this.startPlaybackIfReady('autoplay');
         }
       });
     }, 1000);
@@ -197,36 +238,156 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   onVideoCanPlay(): void {
     if (this.playbackInitialized) return;
     this.isVideoReadyToStart = true;
-    this.startPlaybackIfReady();
+    void this.startPlaybackIfReady('autoplay');
   }
 
-  private startPlaybackIfReady(): void {
+  private playbackProps(trigger: 'autoplay' | 'gesture') {
+    return {
+      trigger,
+      muted: this.autoplayMuted,
+      video_id: this.videoId || null,
+      surface: this.isMindVideo ? 'mind' : 'body',
+    };
+  }
+
+  private async startPlaybackIfReady(
+    trigger: 'autoplay' | 'gesture' = 'autoplay'
+  ): Promise<void> {
     const video = this.videoElRef?.nativeElement;
     if (!video || this.playbackInitialized) return;
     if (this.countdownVisible || !this.isVideoReadyToStart) return;
-    this.playbackInitialized = true;
+    if (this.playStartInFlight) return;
 
-    // Some devices apply orientation reliably only when media starts.
+    this.playStartInFlight = true;
     void this.forceLandscapeLock();
+    void this.posthog.capture('video_play_attempt', this.playbackProps(trigger));
 
-    video.play().catch(() => {});
-    this.controlsVisible = false;
-    this.updateRemainingTime();
-    this.startTimer();
+    try {
+      await video.play();
+      this.playbackInitialized = true;
+      this.mediaErrorAutoRetried = false;
+      this.isPaused = false;
+      this.showTapToPlayHint = false;
+      this.controlsVisible = false;
+      this.updateRemainingTime();
+      this.startTimer();
+      void this.posthog.capture('video_play_success', this.playbackProps(trigger));
+    } catch (err) {
+      this.isPaused = true;
+      this.controlsVisible = true;
+      this.showTapToPlayHint = true;
+      void this.posthog.capture('video_play_failed', {
+        ...this.playbackProps(trigger),
+        error_name: (err as Error)?.name,
+        error_message: (err as Error)?.message,
+      });
+    } finally {
+      this.playStartInFlight = false;
+    }
   }
 
-  /** Mirrors: updateSeekBarRunnable */
+  /** Mirrors: updateSeekBarRunnable — only ticks while actually playing. */
   private startTimer(): void {
+    this.stopPlaybackTimer();
     this.timerInterval = setInterval(() => {
       this.zone.run(() => this.updateRemainingTime());
     }, 1000);
   }
 
+  private stopPlaybackTimer(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
   private updateRemainingTime(): void {
     const video = this.videoElRef?.nativeElement;
     if (!video) return;
+    if (video.paused || video.ended) return;
     const remaining = (video.duration - video.currentTime) * 1000;
     this.remainingTime = this.formatTime(remaining);
+  }
+
+  onVideoError(event: Event): void {
+    const video = (event.target as HTMLVideoElement) || this.videoElRef?.nativeElement;
+    if (!video) return;
+
+    const code = video.error?.code ?? null;
+    let srcHost: string | null = null;
+    try {
+      srcHost = new URL(video.currentSrc || video.src || this.videoSrc).hostname;
+    } catch {
+      srcHost = null;
+    }
+
+    void this.posthog.capture('video_element_error', {
+      media_error_code: code,
+      src_host: srcHost,
+      video_id: this.videoId || null,
+    });
+
+    this.stopPlaybackTimer();
+
+    if (!this.mediaErrorAutoRetried) {
+      this.mediaErrorAutoRetried = true;
+      this.playbackInitialized = false;
+      video.load();
+      void video
+        .play()
+        .then(() => {
+          this.zone.run(() => {
+            this.playbackInitialized = true;
+            this.mediaErrorAutoRetried = false;
+            this.isPaused = false;
+            this.showTapToPlayHint = false;
+            this.controlsVisible = false;
+            this.updateRemainingTime();
+            this.startTimer();
+            void this.posthog.capture('video_play_success', this.playbackProps('autoplay'));
+          });
+        })
+        .catch((err) => {
+          this.zone.run(() => {
+            this.isPaused = true;
+            this.controlsVisible = true;
+            this.showTapToPlayHint = true;
+            void this.posthog.capture('video_play_failed', {
+              ...this.playbackProps('autoplay'),
+              error_name: (err as Error)?.name,
+              error_message: (err as Error)?.message,
+              after_media_error_retry: true,
+            });
+          });
+        });
+      return;
+    }
+
+    this.isPaused = true;
+    this.controlsVisible = true;
+    this.showTapToPlayHint = true;
+  }
+
+  onVideoStalled(): void {
+    // Reserved for future buffering UX / telemetry.
+  }
+
+  onVideoWaiting(): void {
+    // Reserved for future buffering UX / telemetry.
+  }
+
+  onVideoPlaying(): void {
+    // Clears any stalled/waiting edge cases; timer only runs while playing.
+  }
+
+  /** Sync timer when element pauses (e.g. overlay pause) without duplicating togglePause work unnecessarily. */
+  onVideoNativePause(): void {
+    const video = this.videoElRef?.nativeElement;
+    if (!video || !this.playbackInitialized) return;
+    if (video.paused && !video.ended) {
+      this.stopPlaybackTimer();
+      this.isPaused = true;
+    }
   }
 
   /** Mirrors: RLformatTime(milliseconds) */
@@ -242,6 +403,10 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
   onSurfaceTap(): void {
     if (this.controlsVisible) {
       this.controlsVisible = false;
+      return;
+    }
+    if (!this.playbackInitialized) {
+      void this.startPlaybackIfReady('gesture');
       return;
     }
     // User gesture unlocks media on web autoplay-restricted browsers.
@@ -262,12 +427,21 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
     if (!this.isPaused) {
       video.pause();
+      this.stopPlaybackTimer();
       this.isPaused = true;
     } else {
       this.autoplayMuted = false;
       video.muted = false;
-      video.play().catch(() => {});
-      this.isPaused = false;
+      void video
+        .play()
+        .then(() => {
+          this.zone.run(() => {
+            this.isPaused = false;
+            this.updateRemainingTime();
+            this.startTimer();
+          });
+        })
+        .catch(() => {});
     }
   }
 
@@ -396,7 +570,27 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
     return this.withCacheBuster(normalized);
   }
 
+  /** Skip cache-buster when URL may be signed or tokenized (breaks strict CDNs). */
+  private urlLooksSignedOrTokenized(url: string): boolean {
+    const lower = url.toLowerCase();
+    const patterns = [
+      'token=',
+      'signature=',
+      'expires=',
+      'policy=',
+      'key-pair-id=',
+      'x-amz-signature=',
+      'x-amz-credential=',
+      'sig=',
+      'access_token=',
+    ];
+    return patterns.some((p) => lower.includes(p));
+  }
+
   private withCacheBuster(url: string): string {
+    if (this.urlLooksSignedOrTokenized(url)) {
+      return url;
+    }
     const cacheKey = `_cb=${Date.now()}`;
     return url.includes('?') ? `${url}&${cacheKey}` : `${url}?${cacheKey}`;
   }
@@ -407,12 +601,26 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
     this.autoplayMuted = false;
     video.muted = false;
-    video.play().catch(() => {
-      // If unmuted playback is blocked, keep silent autoplay as fallback.
-      this.autoplayMuted = true;
-      video.muted = true;
-      video.play().catch(() => {});
-    });
+    void video
+      .play()
+      .then(() => {
+        this.zone.run(() => {
+          this.showTapToPlayHint = false;
+          this.updateRemainingTime();
+          this.startTimer();
+        });
+      })
+      .catch(() => {
+        this.autoplayMuted = true;
+        video.muted = true;
+        void video.play().then(() => {
+          this.zone.run(() => {
+            this.showTapToPlayHint = false;
+            this.updateRemainingTime();
+            this.startTimer();
+          });
+        }).catch(() => {});
+      });
   }
 
   // ── Orientation helpers ───────────────────────────────────────────────────
@@ -486,7 +694,10 @@ export class BodyClassVideoPage implements OnInit, OnDestroy {
 
   // ── Cleanup ───────────────────────────────────────────────────────────────
   private clearTimers(): void {
-    if (this.countdownTimer) { clearInterval(this.countdownTimer); this.countdownTimer = null; }
-    if (this.timerInterval) { clearInterval(this.timerInterval); this.timerInterval = null; }
+    if (this.countdownTimer) {
+      clearInterval(this.countdownTimer);
+      this.countdownTimer = null;
+    }
+    this.stopPlaybackTimer();
   }
 }

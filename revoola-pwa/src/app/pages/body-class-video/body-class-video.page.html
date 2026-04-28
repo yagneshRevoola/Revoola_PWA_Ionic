@@ -27,7 +27,20 @@
       (canplay)="onVideoCanPlay()"
       (loadeddata)="onVideoCanPlay()"
       (ended)="onVideoEnded()"
+      (error)="onVideoError($event)"
+      (stalled)="onVideoStalled()"
+      (waiting)="onVideoWaiting()"
+      (playing)="onVideoPlaying()"
+      (pause)="onVideoNativePause()"
     ></video>
+
+    <div
+      class="tap-to-play-hint"
+      *ngIf="showTapToPlayHint && !countdownVisible"
+      role="status"
+    >
+      Tap to play
+    </div>
 
     <!-- ══════════════════════════════════════════════════════════════════
          LEFT PANEL — leftsideview (touch target for swipe)
