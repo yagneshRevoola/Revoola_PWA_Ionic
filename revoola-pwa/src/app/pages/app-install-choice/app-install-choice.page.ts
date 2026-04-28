@@ -19,9 +19,12 @@ export class AppInstallChoicePage implements OnInit, OnDestroy {
   isInstallInProgress = false;
   installStatusMessage = '';
   installStatusType: 'success' | 'warning' | 'error' | 'info' = 'info';
+  variant: 'mind' | 'body' = 'mind';
+  readonly cacheBuster = Date.now();
 
   private pwaStateSub?: Subscription;
   private readonly FULL_APP_PACKAGE = 'com.revoola';
+  private readonly storageVideoKey = 'revoola:lastVideoKey';
 
   constructor(
     private router: Router,
@@ -35,7 +38,20 @@ export class AppInstallChoicePage implements OnInit, OnDestroy {
       this.router.navigate(['/body-class-view'], { replaceUrl: true });
       return;
     }
+    this.variant = this.detectVariant();
     this.setupPwaInstallState();
+  }
+
+  // Mirrors shouldUseMindLayout in body-class-view.page.ts:
+  // videoId contains 'm' (case-insensitive) → mind, else → body.
+  private detectVariant(): 'mind' | 'body' {
+    let key = '';
+    try {
+      key = (localStorage.getItem(this.storageVideoKey) ?? '').trim();
+    } catch {
+      /* private mode / quota — fall through to default */
+    }
+    return key.toLowerCase().includes('m') ? 'mind' : 'body';
   }
 
   ngOnDestroy(): void {
@@ -47,8 +63,14 @@ export class AppInstallChoicePage implements OnInit, OnDestroy {
   }
 
   openPlayStore(): void {
-    const url = `https://play.google.com/store/apps/details?id=${this.FULL_APP_PACKAGE}`;
+    const url = this.withCacheBuster(
+      `https://play.google.com/store/apps/details?id=${this.FULL_APP_PACKAGE}`
+    );
     window.open(url, '_blank');
+  }
+
+  cacheBustAsset(path: string): string {
+    return this.withCacheBuster(path);
   }
 
   async installAppClip(): Promise<void> {
@@ -167,5 +189,12 @@ export class AppInstallChoicePage implements OnInit, OnDestroy {
     if (color === 'warning') return 'warning';
     if (color === 'danger') return 'error';
     return 'info';
+  }
+
+  private withCacheBuster(url: string): string {
+    const value = (url || '').trim();
+    if (!value) return '';
+    const cacheKey = `_cb=${this.cacheBuster}`;
+    return value.includes('?') ? `${value}&${cacheKey}` : `${value}?${cacheKey}`;
   }
 }

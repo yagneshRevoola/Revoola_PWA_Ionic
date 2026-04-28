@@ -26,7 +26,21 @@
       preload="auto"
       (canplay)="onVideoCanPlay()"
       (loadeddata)="onVideoCanPlay()"
+      (ended)="onVideoEnded()"
+      (error)="onVideoError($event)"
+      (stalled)="onVideoStalled()"
+      (waiting)="onVideoWaiting()"
+      (playing)="onVideoPlaying()"
+      (pause)="onVideoNativePause()"
     ></video>
+
+    <div
+      class="tap-to-play-hint"
+      *ngIf="showTapToPlayHint && !countdownVisible"
+      role="status"
+    >
+      Tap to play
+    </div>
 
     <!-- ══════════════════════════════════════════════════════════════════
          LEFT PANEL — leftsideview (touch target for swipe)
@@ -150,20 +164,62 @@
 </ion-content>
 
 <!-- ══════════════════════════════════════════════════════════════════════════
-     UPGRADE DIALOG — mirrors showFullAppUpgradeDialog (MaterialAlertDialog)
+     UPGRADE DIALOG — variant-aware
+     dialogVariant: 'completion' (video ended) | 'exit' (user stopped/back)
+     isMindVideo:   true → Mind copy, false → Body copy
      ══════════════════════════════════════════════════════════════════════════ -->
 <div class="dialog-backdrop" *ngIf="showUpgradeDialog" (click)="$event.stopPropagation()">
   <div class="dialog-card">
-    <h3 class="dialog-title">✨ Unlock Your Full Revoola Journey</h3>
-    <p class="dialog-message">
-      We hope you're enjoying Mind 🧘, Body 💪, Run 🏃, Ride 🚴, Walk 🚶,
-      and Workout 🏋️ in Revoola Instant.<br/><br/>
-      To access the full experience — with all features, personalized programs,
-      and progress tracking — install the complete Revoola app from the Play Store today!
-    </p>
+
+    <!-- COMPLETION · MIND -->
+    <ng-container *ngIf="dialogVariant === 'completion' && isMindVideo">
+      <h3 class="dialog-title">Nicely done.</h3>
+      <p class="dialog-subline" *ngIf="classDurationMins">
+        {{ classDurationMins }} {{ classDurationMins === 1 ? 'minute' : 'minutes' }} for you, today.
+      </p>
+      <p class="dialog-message">
+        If that felt good, the full Revoola app has more Mind sessions —
+        plus a daily rhythm that builds on this one.
+      </p>
+    </ng-container>
+
+    <!-- COMPLETION · BODY -->
+    <ng-container *ngIf="dialogVariant === 'completion' && !isMindVideo">
+      <h3 class="dialog-title">Strong work.</h3>
+      <p class="dialog-subline" *ngIf="classDurationMins">
+        {{ classDurationMins }} {{ classDurationMins === 1 ? 'minute' : 'minutes' }}, done.
+      </p>
+      <p class="dialog-message">
+        Want to keep going? The full Revoola app has more Body sessions,
+        plus weekly programs you can follow at your pace.
+      </p>
+    </ng-container>
+
+    <!-- EXIT · MIND -->
+    <ng-container *ngIf="dialogVariant === 'exit' && isMindVideo">
+      <h3 class="dialog-title">All good.</h3>
+      <p class="dialog-message">
+        Step away whenever you need. If you'd like Mind sessions on hand,
+        the full Revoola app keeps them with you.
+      </p>
+    </ng-container>
+
+    <!-- EXIT · BODY -->
+    <ng-container *ngIf="dialogVariant === 'exit' && !isMindVideo">
+      <h3 class="dialog-title">No worries.</h3>
+      <p class="dialog-message">
+        Stop and start anytime. If you want more sessions like this one, the full
+        Revoola app has Body, Run, Ride, Walk, and Workout — ready when you are.
+      </p>
+    </ng-container>
+
     <div class="dialog-actions">
-      <button class="dialog-btn dialog-btn--secondary" (click)="dismissDialog()">Later</button>
-      <button class="dialog-btn dialog-btn--primary" (click)="openPlayStore()">Get Full App</button>
+      <button class="dialog-btn dialog-btn--primary" (click)="openPlayStore()">
+        {{ dialogVariant === 'completion' && isMindVideo ? 'More Mind classes' : 'Get the full app' }}
+      </button>
+      <button class="dialog-btn dialog-btn--secondary" (click)="dismissDialog()">
+        {{ dialogVariant === 'completion' ? 'Not now' : 'Done for now' }}
+      </button>
     </div>
   </div>
 </div>

@@ -1,5 +1,8 @@
 :host {
   --background: #ffffff;
+  --brand-green: #35ba4a;
+  --brand-ink: #1a1a1a;
+  --brand-muted: #5a5d63;
 }
 
 .install-choice-content {
@@ -9,13 +12,13 @@
 .install-choice-wrapper {
   position: relative;
   overflow: hidden;
-  min-height: 100%;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 70px;
-  padding: 40px 20px;
+  justify-content: flex-start;
+  gap: 24px;
+  padding: 28px 20px 36px;
   box-sizing: border-box;
   background-image: url('/assets/images/bg.jpeg');
   background-size: cover;
@@ -23,55 +26,251 @@
   background-repeat: no-repeat;
 }
 
+.install-choice-wrapper[data-state='post-install'] {
+  justify-content: center;
+  gap: 28px;
+}
+
 .logo-image,
-.install-actions {
+.hero-frame,
+.install-copy,
+.install-class-chip,
+.install-steps,
+.install-actions,
+.post-install {
   position: relative;
   z-index: 1;
 }
 
 .logo-image {
-  width: min(85vw, 280px);
+  width: min(55vw, 200px);
   height: auto;
-  margin-top: -80px;
+}
+
+.hero-frame {
+  margin: 0;
+  width: min(82vw, 320px);
+  aspect-ratio: 4 / 5;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(53, 186, 74, 0.18);
+}
+
+.install-choice-wrapper[data-variant='body'][data-state='pre-install'] .hero-frame {
+  width: min(64vw, 230px);
+}
+
+.install-choice-wrapper[data-variant='body'][data-state='pre-install'] {
+  gap: 12px;
+  padding-bottom: 10px;
+}
+
+.install-choice-wrapper[data-variant='body'][data-state='pre-install'] .install-steps {
+  padding: 8px 10px;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.install-copy {
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.install-eyebrow {
+  margin: 0;
+  font-family: var(--font-bold, var(--font-semibold));
+  font-size: 15px;
+  color: var(--brand-green);
+}
+
+.install-headline {
+  margin: 0;
+  font-family: var(--font-bold, var(--font-semibold));
+  font-size: clamp(22px, 6.4vw, 28px);
+  line-height: 1.18;
+  color: var(--brand-ink);
+}
+
+.install-headline-accent {
+  color: var(--brand-green);
+}
+
+.install-subhead {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--brand-muted);
+}
+
+.install-class-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: rgba(53, 186, 74, 0.10);
+  border: 1px solid rgba(53, 186, 74, 0.22);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand-ink);
+}
+
+.install-class-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand-green);
+}
+
+.install-steps {
+  list-style: none;
+  margin: 0;
+  padding: 10px 14px;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  border: 1px solid rgba(53, 186, 74, 0.16);
+}
+
+.install-step {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.install-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--brand-green);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.install-step-label {
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--brand-ink);
+  font-weight: 600;
 }
 
 .install-actions {
   width: 100%;
-  max-width: 320px;
+  max-width: 340px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
-.btn-install-app-clip,
-.btn-install-full-version {
-  width: 90%;
-  align-self: center;
-  min-height: 56px;
+.post-install {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.post-install-arrow {
+  width: 36px;
+  height: 48px;
+  color: var(--brand-green);
+}
+
+.post-install-icon-card {
+  width: 112px;
+  height: 112px;
+  border-radius: 26px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  box-shadow: 0 14px 30px rgba(53, 186, 74, 0.26);
+}
+
+.post-install-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.post-install-copy {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.post-install-hint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--brand-muted);
+  text-align: center;
+  padding: 10px 14px;
+  background: rgba(53, 186, 74, 0.08);
+  border-radius: 12px;
+  width: 100%;
+}
+
+.btn-primary {
+  width: 100%;
+  min-height: 54px;
   border: none;
   border-radius: 50px;
   font-family: var(--font-bold, var(--font-semibold));
   font-size: 16px;
-  letter-spacing: 1px;
-  padding: 16px 10px;
-}
-
-.btn-install-app-clip {
-  background: #35ba4a;
+  padding: 14px 20px;
+  background: var(--brand-green);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  box-shadow: 0 10px 22px rgba(53, 186, 74, 0.32);
+  cursor: pointer;
 }
 
-.btn-install-app-clip:disabled {
+.btn-primary:disabled {
   opacity: 0.75;
+  cursor: progress;
 }
 
-.btn-install-full-version {
-  background: #3a3b3f;
-  color: #ffffff;
+.btn-secondary-link {
+  background: transparent;
+  border: none;
+  padding: 2px 8px;
+  font-size: 13px;
+  line-height: 1.25;
+  color: var(--brand-muted);
 }
 
 .install-status {
@@ -112,20 +311,56 @@
   color: inherit;
   font-size: 16px;
   line-height: 1;
-  cursor: pointer;
 }
 
 .install-spinner {
   width: 18px;
-  height: 18px;
 }
 
 @media (max-height: 740px) {
-  .logo-image {
-    margin-top: -40px;
+  .install-choice-wrapper {
+    gap: 18px;
+    padding-top: 20px;
   }
 
-  .install-choice-wrapper {
-    gap: 52px;
+  .logo-image {
+    width: min(48vw, 170px);
+  }
+
+  .hero-frame {
+    width: min(72vw, 280px);
+    aspect-ratio: 1 / 1;
+  }
+
+  .install-headline {
+    font-size: clamp(20px, 5.8vw, 24px);
+  }
+
+  .install-steps {
+    padding: 8px 10px;
+  }
+
+  .post-install-icon-card {
+    width: 96px;
+    height: 96px;
+    border-radius: 22px;
+  }
+}
+
+@media (max-height: 640px) {
+  .hero-frame {
+    width: min(60vw, 230px);
+  }
+
+  .install-eyebrow {
+    display: none;
+  }
+
+  .install-steps {
+    display: none;
+  }
+
+  .install-class-chip {
+    display: none;
   }
 }

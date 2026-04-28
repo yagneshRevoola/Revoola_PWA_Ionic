@@ -17,8 +17,8 @@ export class PosthogService {
     return this.setupPromise;
   }
 
-  async capture(event: string): Promise<void> {
+  async capture(event: string, properties?: Record<string, unknown>): Promise<void> {
     await this.init();
-    await Posthog.capture({ event });
+    await Posthog.capture({ event, properties });
   }
 }
