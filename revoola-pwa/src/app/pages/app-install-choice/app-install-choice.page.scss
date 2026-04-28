@@ -175,7 +175,6 @@
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  margin-top: 4px;
 }
 
 /* ── Post-install state ──────────────────────────────────────────── */
@@ -192,18 +191,12 @@
   width: 36px;
   height: 48px;
   color: var(--brand-green);
-  animation: post-install-bob 1.6s ease-in-out infinite;
 }
 
 .post-install-arrow svg {
   width: 100%;
   height: 100%;
   display: block;
-}
-
-@keyframes post-install-bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-8px); }
 }
 
 .post-install-icon-card {
@@ -215,25 +208,7 @@
   align-items: center;
   justify-content: center;
   padding: 14px;
-  box-shadow:
-    0 18px 38px rgba(53, 186, 74, 0.30),
-    0 0 0 1px rgba(53, 186, 74, 0.18);
-  position: relative;
-}
-
-.post-install-icon-card::before {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  border-radius: 32px;
-  background: radial-gradient(circle, rgba(53, 186, 74, 0.28), rgba(53, 186, 74, 0) 70%);
-  z-index: -1;
-  animation: post-install-glow 2s ease-in-out infinite;
-}
-
-@keyframes post-install-glow {
-  0%, 100% { transform: scale(1);    opacity: 0.85; }
-  50%      { transform: scale(1.08); opacity: 1; }
+  box-shadow: 0 14px 30px rgba(53, 186, 74, 0.26);
 }
 
 .post-install-icon {
@@ -308,10 +283,6 @@
   cursor: pointer;
 }
 
-.btn-secondary-link:active {
-  color: var(--brand-ink);
-}
-
 .install-status {
   width: 100%;
   border-radius: 10px;
@@ -355,7 +326,6 @@
 
 .install-spinner {
   width: 18px;
-  height: 18px;
 }
 
 @media (max-height: 740px) {
