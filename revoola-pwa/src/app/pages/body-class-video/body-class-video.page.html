@@ -164,61 +164,81 @@
 </ion-content>
 
 <!-- ══════════════════════════════════════════════════════════════════════════
-     UPGRADE DIALOG — variant-aware
-     dialogVariant: 'completion' (video ended) | 'exit' (user stopped/back)
-     isMindVideo:   true → Mind copy, false → Body copy
+     UPGRADE FLOW — two-stage bottom sheet over a full-bleed background screen
+       Stage 1: celebration sheet over save-screen ("ACTIVITY/WORKOUT COMPLETE!")
+       Stage 2: results-reveal sheet over results-page (aspirational stats baked in)
+     User must engage with both stages or hard-close to escape.
      ══════════════════════════════════════════════════════════════════════════ -->
-<div class="dialog-backdrop" *ngIf="showUpgradeDialog" (click)="$event.stopPropagation()">
-  <div class="dialog-card">
+<div class="upgrade-flow" *ngIf="showUpgradeDialog">
 
-    <!-- COMPLETION · MIND -->
-    <ng-container *ngIf="dialogVariant === 'completion' && isMindVideo">
-      <h3 class="dialog-title">Nicely done.</h3>
-      <p class="dialog-subline" *ngIf="classDurationMins">
+  <!-- Full-bleed background screen — image picked from stage × surface -->
+  <div
+    class="upgrade-bg"
+    [class.upgrade-bg--stage1-body]="dialogStage === 1 && !isMindVideo"
+    [class.upgrade-bg--stage1-mind]="dialogStage === 1 && isMindVideo"
+    [class.upgrade-bg--stage2-body]="dialogStage === 2 && !isMindVideo"
+    [class.upgrade-bg--stage2-mind]="dialogStage === 2 && isMindVideo"
+  ></div>
+  <div class="upgrade-dim"></div>
+
+  <!-- Bottom sheet -->
+  <div class="upgrade-sheet">
+    <div class="sheet-grabber"></div>
+    <div class="sheet-pips">
+      <span class="pip" [class.pip--active]="dialogStage === 1"></span>
+      <span class="pip" [class.pip--active]="dialogStage === 2"></span>
+    </div>
+
+    <!-- STAGE 1 · BODY -->
+    <ng-container *ngIf="dialogStage === 1 && !isMindVideo">
+      <h3 class="sheet-title">Strong work.</h3>
+      <p class="sheet-subline" *ngIf="effortPointsApprox">
+        Worth up to ~{{ effortPointsApprox }} Effort Points in the full app.
+      </p>
+      <p class="sheet-message">
+        Get the full app to <strong>record your Effort Score</strong> on a live leaderboard —
+        train alongside friends and colleagues in real time. Try other classes too, or use
+        Revoola alongside the workouts you already do.
+      </p>
+    </ng-container>
+
+    <!-- STAGE 1 · MIND -->
+    <ng-container *ngIf="dialogStage === 1 && isMindVideo">
+      <h3 class="sheet-title">Nicely done.</h3>
+      <p class="sheet-subline" *ngIf="classDurationMins">
         {{ classDurationMins }} {{ classDurationMins === 1 ? 'minute' : 'minutes' }} for you, today.
       </p>
-      <p class="dialog-message">
-        If that felt good, the full Revoola app has more Mind sessions —
-        plus a daily rhythm that builds on this one.
+      <p class="sheet-message">
+        Get the full app to see <strong>how effective your relaxation actually is</strong> —
+        with our unique <strong>Relaxation Score</strong> algorithm. Try other Mind sessions,
+        or fit Revoola around the wellness routine you already have.
       </p>
     </ng-container>
 
-    <!-- COMPLETION · BODY -->
-    <ng-container *ngIf="dialogVariant === 'completion' && !isMindVideo">
-      <h3 class="dialog-title">Strong work.</h3>
-      <p class="dialog-subline" *ngIf="classDurationMins">
-        {{ classDurationMins }} {{ classDurationMins === 1 ? 'minute' : 'minutes' }}, done.
-      </p>
-      <p class="dialog-message">
-        Want to keep going? The full Revoola app has more Body sessions,
-        plus weekly programs you can follow at your pace.
+    <!-- STAGE 2 · BODY -->
+    <ng-container *ngIf="dialogStage === 2 && !isMindVideo">
+      <h3 class="sheet-title">Imagine this every workout.</h3>
+      <p class="sheet-message">
+        Track your effort, climb the leaderboard, see how you stack up
+        against friends. The full Revoola app makes <strong>every session count</strong>.
       </p>
     </ng-container>
 
-    <!-- EXIT · MIND -->
-    <ng-container *ngIf="dialogVariant === 'exit' && isMindVideo">
-      <h3 class="dialog-title">All good.</h3>
-      <p class="dialog-message">
-        Step away whenever you need. If you'd like Mind sessions on hand,
-        the full Revoola app keeps them with you.
+    <!-- STAGE 2 · MIND -->
+    <ng-container *ngIf="dialogStage === 2 && isMindVideo">
+      <h3 class="sheet-title">Imagine knowing how relaxed you really are.</h3>
+      <p class="sheet-message">
+        Track your Relaxation Score over time and discover what truly works for you.
+        The full Revoola app makes <strong>every mindful minute count</strong>.
       </p>
     </ng-container>
 
-    <!-- EXIT · BODY -->
-    <ng-container *ngIf="dialogVariant === 'exit' && !isMindVideo">
-      <h3 class="dialog-title">No worries.</h3>
-      <p class="dialog-message">
-        Stop and start anytime. If you want more sessions like this one, the full
-        Revoola app has Body, Run, Ride, Walk, and Workout — ready when you are.
-      </p>
-    </ng-container>
-
-    <div class="dialog-actions">
-      <button class="dialog-btn dialog-btn--primary" (click)="openPlayStore()">
-        {{ dialogVariant === 'completion' && isMindVideo ? 'More Mind classes' : 'Get the full app' }}
+    <div class="sheet-actions">
+      <button class="sheet-btn sheet-btn--primary" (click)="openPlayStore()">
+        {{ primaryCtaLabel }}
       </button>
-      <button class="dialog-btn dialog-btn--secondary" (click)="dismissDialog()">
-        {{ dialogVariant === 'completion' ? 'Not now' : 'Done for now' }}
+      <button class="sheet-btn sheet-btn--secondary" (click)="onSecondaryAction()">
+        {{ secondaryCtaLabel }}
       </button>
     </div>
   </div>

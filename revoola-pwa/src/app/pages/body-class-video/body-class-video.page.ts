@@ -67,7 +67,10 @@ export class BodyClassVideoPage implements OnInit, OnDestroy, AfterViewInit {
 
   // Upgrade dialog
   showUpgradeDialog = false;
+  /** Trigger source — kept for analytics. Dialog content does NOT branch on this. */
   dialogVariant: 'completion' | 'exit' = 'exit';
+  /** 1 = celebration sheet over save-screen background; 2 = results-page reveal. */
+  dialogStage: 1 | 2 = 1;
   forceLandscapeVisualFallback = false;
 
   // Difficulty
@@ -455,14 +458,16 @@ export class BodyClassVideoPage implements OnInit, OnDestroy, AfterViewInit {
     }
     this.clearTimers();
     this.dialogVariant = 'exit';
+    this.dialogStage = 1;
     this.showUpgradeDialog = true;
     void this.posthog.capture('upgrade_dialog_shown', this.upgradeDialogProps());
   }
 
-  /** Natural class completion — high-intent moment, show completion variant of upgrade dialog. */
+  /** Natural class completion — high-intent moment, show celebration stage of upgrade dialog. */
   onVideoEnded(): void {
     this.clearTimers();
     this.dialogVariant = 'completion';
+    this.dialogStage = 1;
     this.showUpgradeDialog = true;
     void this.posthog.capture('upgrade_dialog_shown', this.upgradeDialogProps());
   }
@@ -476,6 +481,12 @@ export class BodyClassVideoPage implements OnInit, OnDestroy, AfterViewInit {
     this.navigateHome();
   }
 
+  /** Stage 1 → Stage 2. Skip on celebration sheet advances to the results-reveal. */
+  advanceDialogStage(): void {
+    this.dialogStage = 2;
+    void this.posthog.capture('upgrade_dialog_stage_advanced', this.upgradeDialogProps());
+  }
+
   dismissDialog(): void {
     this.showUpgradeDialog = false;
     this.navigateHome();
@@ -484,6 +495,7 @@ export class BodyClassVideoPage implements OnInit, OnDestroy, AfterViewInit {
   private upgradeDialogProps() {
     return {
       variant: this.dialogVariant,
+      stage: this.dialogStage,
       surface: this.isMindVideo ? 'mind' : 'body',
       video_id: this.videoId || null,
       duration_mins: this.classDurationMins,
@@ -494,6 +506,38 @@ export class BodyClassVideoPage implements OnInit, OnDestroy, AfterViewInit {
   get classDurationMins(): number | null {
     const raw = Number(this.videoData?.duration);
     return Number.isFinite(raw) && raw > 0 ? Math.round(raw) : null;
+  }
+
+  /**
+   * Realistic-ceiling Effort Points for this class, rounded to the nearest 10.
+   * Approximation: 1000 EP/hour at 100% effort × ~75% sustainable hard effort = ~12.5 per minute.
+   * Used for the loss-framed subline on the body completion variant.
+   * NOTE: dev should swap in the real formula if/when one is available.
+   */
+  get effortPointsApprox(): number | null {
+    const mins = this.classDurationMins;
+    if (mins == null) return null;
+    return Math.round((mins * 12.5) / 10) * 10;
+  }
+
+  /** Primary CTA label — stage 1 always installs; stage 2 uses surface-specific copy. */
+  get primaryCtaLabel(): string {
+    if (this.dialogStage === 1) return 'Get the full app';
+    return this.isMindVideo ? 'See my Relaxation Score' : 'Join the leaderboard';
+  }
+
+  /** Secondary CTA label — stage 1 advances; stage 2 dismisses. */
+  get secondaryCtaLabel(): string {
+    return this.dialogStage === 1 ? 'Skip' : 'Done for now';
+  }
+
+  /** Bound to (click) of the secondary button — branches on stage. */
+  onSecondaryAction(): void {
+    if (this.dialogStage === 1) {
+      this.advanceDialogStage();
+    } else {
+      this.dismissDialog();
+    }
   }
 
   private navigateHome(): void {
