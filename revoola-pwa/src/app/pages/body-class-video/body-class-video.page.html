@@ -14,6 +14,7 @@
 
     <!-- ── VIDEO — mirrors VideoView match_parent ──────────────────────── -->
     <video
+      *ngIf="renderVideoEl"
       #videoEl
       class="video-player"
       [src]="videoSrc"
@@ -25,6 +26,7 @@
       controlsList="nofullscreen noremoteplayback nodownload"
       preload="auto"
       (canplay)="onVideoCanPlay()"
+      (loadedmetadata)="onVideoCanPlay()"
       (loadeddata)="onVideoCanPlay()"
       (ended)="onVideoEnded()"
       (error)="onVideoError($event)"
@@ -39,7 +41,7 @@
       *ngIf="showTapToPlayHint && !countdownVisible"
       role="status"
     >
-      Tap to play
+      Network is slow, please wait some time...
     </div>
 
     <!-- ══════════════════════════════════════════════════════════════════
